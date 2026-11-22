@@ -3,7 +3,7 @@
 // 그 뒤로는 서버(WorldWideWeb)가 꺼져 있어도 홈 화면 아이콘이 저장본으로 바로 열립니다.
 // 서버가 켜져 있으면 뒤에서 새 파일을 받아 다음 열 때 반영합니다.
 
-const CACHE = 'quest-board-v9';
+const CACHE = 'quest-board-v10';
 const FILES = ['./', './index.html', './sw.js'];
 
 self.addEventListener('install', event => {

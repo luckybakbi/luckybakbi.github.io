@@ -191,8 +191,38 @@ header {
   border: 2px solid #000; background: #fff; color: #c00; font-size: 11px; line-height: 1; box-shadow: none;
 }
 .locked .photo-del { display: none !important; }
-/* 폭죽 */
-#fireworks { position: fixed; inset: 0; pointer-events: none; z-index: 30; }
+/* 까마귀 댄스 */
+#danceOverlay { position: fixed; inset: 0; z-index: 30; background: #000; overflow: hidden; display: grid; grid-template-rows: 1fr auto; place-items: center; animation: fadein .5s; }
+#danceOverlay .spot { position: absolute; width: 60vmax; height: 60vmax; border-radius: 50%; filter: blur(40px); opacity: .35; mix-blend-mode: screen; animation: spot 4s ease-in-out infinite; }
+#danceOverlay .s1 { background: #5b5fd6; left: -20vmax; top: -10vmax; }
+#danceOverlay .s2 { background: #ff9b1f; right: -20vmax; top: 0; animation-delay: -1.3s; }
+#danceOverlay .s3 { background: #ff5aa5; left: 20vmax; bottom: -30vmax; animation-delay: -2.6s; }
+@keyframes spot { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(8vmax, 6vmax) scale(1.15); } }
+#danceOverlay .dance-sparks { position: absolute; inset: 0; pointer-events: none; }
+#danceOverlay .dance-sparks span { position: absolute; bottom: -40px; animation: rise linear infinite; opacity: 0; }
+@keyframes rise { 0% { transform: translateY(0) rotate(0); opacity: 0; } 10% { opacity: 1; } 100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; } }
+#danceOverlay .dance-stage { position: relative; display: grid; place-items: center; align-self: end; }
+#danceOverlay .dance-crow { width: min(52vh, 70vw); height: min(52vh, 70vw); animation: dance .47s ease-in-out infinite alternate; transform-origin: 50% 90%; }
+#danceOverlay .dance-crow svg { width: 100%; height: 100%; overflow: visible; }
+@keyframes dance { 0% { transform: translateX(-9%) rotate(-7deg) scaleY(1); } 50% { transform: translateX(0) rotate(0) scaleY(.93) translateY(3%); } 100% { transform: translateX(9%) rotate(7deg) scaleY(1); } }
+#danceOverlay .head { transform-origin: 84px 50px; animation: headbob .235s ease-in-out infinite alternate; }
+@keyframes headbob { from { transform: rotate(-6deg) translateY(0); } to { transform: rotate(6deg) translateY(-3px); } }
+#danceOverlay .beak-low { transform-origin: 101px 50px; animation: sing .47s ease-in-out infinite alternate; }
+@keyframes sing { from { transform: rotate(0); } to { transform: rotate(14deg); } }
+#danceOverlay .wing-l { transform-origin: 48px 70px; animation: flapdance .235s ease-in-out infinite alternate; }
+@keyframes flapdance { from { transform: rotate(0); } to { transform: rotate(-34deg); } }
+#danceOverlay .tail { transform-origin: 36px 84px; animation: wag .47s ease-in-out infinite alternate; }
+@keyframes wag { from { transform: rotate(-8deg); } to { transform: rotate(8deg); } }
+#danceOverlay .leg-a { transform-origin: 54px 100px; animation: kick .47s ease-in-out infinite alternate; }
+#danceOverlay .leg-b { transform-origin: 66px 100px; animation: kick .47s ease-in-out infinite alternate-reverse; }
+@keyframes kick { from { transform: rotate(-18deg); } to { transform: rotate(18deg); } }
+#danceOverlay .dance-floor { width: min(60vh, 80vw); height: 14px; border-radius: 50%; background: radial-gradient(ellipse at center, rgba(255,155,31,.6), rgba(255,155,31,0) 70%); margin-top: -6px; animation: floor .47s ease-in-out infinite alternate; }
+@keyframes floor { from { transform: scaleX(.9); opacity: .6; } to { transform: scaleX(1.1); opacity: 1; } }
+#danceOverlay .dance-text { text-align: center; padding: 10px 16px 28px; z-index: 1; }
+#danceOverlay .dance-title { font-family: var(--font-display); font-size: clamp(34px, 6.5vw, 76px); color: #fff; text-shadow: 0 0 24px rgba(255,155,31,.6); animation: cawpop 1.9s ease-in-out infinite; }
+#danceOverlay .dance-sub { font-size: clamp(15px, 2vw, 24px); color: #e8e4da; font-weight: 800; margin-top: 4px; }
+#danceOverlay button { margin-top: 14px; background: var(--ember); border-color: #000; color: #000; }
+#danceOverlay.long .dance-title { color: #ffd27a; }
 /* 우는 까마귀 (숙제 못 끝냈을 때) */
 #cryOverlay { position: fixed; inset: 0; z-index: 40; background: #000; display: grid; place-items: center; text-align: center; color: #fff; animation: fadein .6s; }
 @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
@@ -1077,7 +1107,38 @@ html.theme-day .tasks-card.evening { background: #e9ebff; }
   </section>
 </div>
 
-<canvas id="fireworks" hidden></canvas>
+<div id="danceOverlay" hidden>
+  <div class="spot s1"></div><div class="spot s2"></div><div class="spot s3"></div>
+  <div class="dance-sparks" id="danceSparks"></div>
+  <div class="dance-stage">
+    <div class="dance-crow">
+      <svg viewBox="0 0 120 120" aria-hidden="true">
+        <path class="tail" d="M34 74 L6 58 L24 78 L2 82 L26 86 L10 104 L36 88 Z" fill="#0b0c10"/>
+        <path d="M30 80 C30 56 52 46 78 50 C98 54 100 78 86 92 C74 104 46 104 34 92 C30 88 30 84 30 80 Z" fill="#15161b"/>
+        <g class="head">
+          <circle cx="84" cy="44" r="20" fill="#15161b"/>
+          <path d="M101 38 C112 40 120 44 126 48 C118 50 110 52 101 52 Z" fill="#ff9b1f"/>
+          <path class="beak-low" d="M101 50 C110 52 118 54 124 58 C116 58 108 58 101 56 Z" fill="#d97a08"/>
+          <circle cx="90" cy="41" r="6.5" fill="#fff"/>
+          <circle cx="92" cy="41.5" r="3.6" fill="#000"/>
+          <circle cx="93.6" cy="39.8" r="1.4" fill="#fff"/>
+          <path d="M80 33 Q90 28 98 34" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".9"/>
+        </g>
+        <g class="wing-l"><path d="M44 66 C56 50 82 54 94 66 C82 66 70 72 62 82 C54 92 44 84 44 66 Z" fill="#1e2027"/><path d="M50 70 C58 60 72 60 82 66" fill="none" stroke="#5b5fd6" stroke-width="2" stroke-linecap="round" opacity=".75"/></g>
+        <g class="legs">
+          <path class="leg-a" d="M54 100 L50 112 M50 112 L42 116 M50 112 L50 118 M50 112 L58 116" stroke="#ff9b1f" stroke-width="3" stroke-linecap="round" fill="none"/>
+          <path class="leg-b" d="M66 100 L66 112 M66 112 L58 116 M66 112 L66 118 M66 112 L74 116" stroke="#ff9b1f" stroke-width="3" stroke-linecap="round" fill="none"/>
+        </g>
+      </svg>
+    </div>
+    <div class="dance-floor"></div>
+  </div>
+  <div class="dance-text">
+    <div class="dance-title" id="danceTitle">축하해! 🎉</div>
+    <div class="dance-sub" id="danceSub"></div>
+    <button type="button" id="danceClose">고마워 까마귀!</button>
+  </div>
+</div>
 <div id="cryOverlay" hidden>
   <div>
     <svg class="cry-crow" viewBox="0 0 120 120" aria-hidden="true">
@@ -1198,7 +1259,7 @@ function showToast(main, sub, ms = 2800) {
 
 // ---------- 주간 스케줄 ----------
 const WEEK_KEY = 'scene_week_v1';
-const DEFAULT_WEEK = ['', '', '', '', '', '', ''];  // 공개 버전: 시간표는 기기에서 직접 입력
+const DEFAULT_WEEK = ['', '', '', '', '', '', ''];
 let week = readJSON(WEEK_KEY, null);
 if (!Array.isArray(week) || week.length !== 7 || week.every(t => !t || !t.trim())) week = DEFAULT_WEEK.slice();
 const WEEK_PLACEHOLDER = ['예: 피아노 3시', '예: 태권도 4시', '예: 미술 3시 30분', '예: 영어 4시', '예: 수영 5시', '예: 할머니 집', '예: 쉬는 날 🎮'];
@@ -1386,217 +1447,73 @@ $('photoDel').addEventListener('click', e => {
 });
 renderPhoto();
 
-// ---------- 불꽃놀이 (반짝이 5개마다) ----------
-// 화면이 검게 꺼지고, 국화형 대형 불꽃 + 아래쪽 분수 불꽃. 소리는 기기 안에서 합성.
-let noiseBuf = null;
-function getNoise() {
-  if (noiseBuf || !audioCtx) return noiseBuf;
-  const len = audioCtx.sampleRate * 2;
-  noiseBuf = audioCtx.createBuffer(1, len, audioCtx.sampleRate);
-  const d = noiseBuf.getChannelData(0);
-  for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
-  return noiseBuf;
-}
-function noiseSrc() { const src = audioCtx.createBufferSource(); src.buffer = getNoise(); src.loop = true; return src; }
-function sfxWhoosh() {
+// ---------- 까마귀 댄스 (반짝이 5개마다) ----------
+// 검은 화면에서 큰 까마귀가 음악에 맞춰 춤춥니다. 음악은 기기 안에서 합성(8비트 느낌).
+let danceTimer = null, danceMusic = null;
+function playDanceMusic(duration) {
   if (!soundOn) return;
   try {
     ensureAudio(); if (!audioCtx) return;
-    const t = audioCtx.currentTime;
-    const src = noiseSrc(); const bp = audioCtx.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 1.2;
-    bp.frequency.setValueAtTime(300, t); bp.frequency.exponentialRampToValueAtTime(2400, t + .9);
-    const g = audioCtx.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(.06, t + .25); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.0);
-    src.connect(bp).connect(g).connect(audioCtx.destination); src.start(t); src.stop(t + 1.05);
-  } catch (e) {}
-}
-function sfxBoom(big = 1) {
-  if (!soundOn) return;
-  try {
-    ensureAudio(); if (!audioCtx) return;
-    const t = audioCtx.currentTime;
-    // 1) 낮고 둥근 "펑" — 저역 노이즈
-    const n = noiseSrc(); const lp = audioCtx.createBiquadFilter(); lp.type = 'lowpass';
-    lp.frequency.setValueAtTime(1400 * big, t); lp.frequency.exponentialRampToValueAtTime(90, t + .7);
-    const g = audioCtx.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(.55 * big, t + .015); g.gain.exponentialRampToValueAtTime(0.0001, t + .9);
-    n.connect(lp).connect(g).connect(audioCtx.destination); n.start(t); n.stop(t + 1);
-    // 2) 가슴을 치는 저음
-    const o = audioCtx.createOscillator(); o.type = 'sine'; o.frequency.setValueAtTime(70, t); o.frequency.exponentialRampToValueAtTime(38, t + .5);
-    const og = audioCtx.createGain(); og.gain.setValueAtTime(0.0001, t); og.gain.exponentialRampToValueAtTime(.5 * big, t + .02); og.gain.exponentialRampToValueAtTime(0.0001, t + .6);
-    o.connect(og).connect(audioCtx.destination); o.start(t); o.stop(t + .65);
-    // 3) 뒤따르는 "타다닥" 잔불
-    const k = 10 + Math.floor(Math.random() * 10);
-    for (let i = 0; i < k; i++) {
-      const tt = t + .12 + Math.random() * 1.1;
-      const c = noiseSrc(); const hp = audioCtx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 1800 + Math.random() * 2500;
-      const cg = audioCtx.createGain(); cg.gain.setValueAtTime(0.0001, tt); cg.gain.exponentialRampToValueAtTime(.12, tt + .004); cg.gain.exponentialRampToValueAtTime(0.0001, tt + .05);
-      c.connect(hp).connect(cg).connect(audioCtx.destination); c.start(tt); c.stop(tt + .06);
+    const bpm = 128, beat = 60 / bpm;
+    const melody = [523, 659, 784, 659, 880, 784, 659, 523, 587, 698, 880, 698, 784, 659, 587, 523]; // C E G E A G E C D F A F G E D C
+    const bass = [131, 131, 175, 175, 196, 196, 131, 131];
+    const start = audioCtx.currentTime + .05;
+    const total = Math.ceil(duration / 1000 / (beat * 16));
+    for (let bar = 0; bar < total; bar++) {
+      melody.forEach((f, i) => {
+        const t = start + bar * beat * 8 + i * beat / 2;
+        if (t > start + duration / 1000) return;
+        const o = audioCtx.createOscillator(); o.type = 'square'; o.frequency.value = f;
+        const g = audioCtx.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(.08, t + .01); g.gain.exponentialRampToValueAtTime(0.0001, t + beat / 2 * .9);
+        o.connect(g).connect(audioCtx.destination); o.start(t); o.stop(t + beat / 2);
+      });
+      bass.forEach((f, i) => {
+        const t = start + bar * beat * 8 + i * beat;
+        if (t > start + duration / 1000) return;
+        const o = audioCtx.createOscillator(); o.type = 'triangle'; o.frequency.value = f;
+        const g = audioCtx.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(.16, t + .01); g.gain.exponentialRampToValueAtTime(0.0001, t + beat * .8);
+        o.connect(g).connect(audioCtx.destination); o.start(t); o.stop(t + beat);
+        // 킥 드럼
+        const k = audioCtx.createOscillator(); k.type = 'sine'; k.frequency.setValueAtTime(150, t); k.frequency.exponentialRampToValueAtTime(45, t + .12);
+        const kg = audioCtx.createGain(); kg.gain.setValueAtTime(0.0001, t); kg.gain.exponentialRampToValueAtTime(.35, t + .005); kg.gain.exponentialRampToValueAtTime(0.0001, t + .15);
+        k.connect(kg).connect(audioCtx.destination); k.start(t); k.stop(t + .16);
+        // 하이햇 (박자 사이)
+        const h = audioCtx.createOscillator(); h.type = 'square'; h.frequency.value = 6000 + Math.random() * 2000;
+        const hg = audioCtx.createGain(); const th = t + beat / 2; hg.gain.setValueAtTime(0.0001, th); hg.gain.exponentialRampToValueAtTime(.025, th + .003); hg.gain.exponentialRampToValueAtTime(0.0001, th + .04);
+        h.connect(hg).connect(audioCtx.destination); h.start(th); h.stop(th + .05);
+      });
     }
   } catch (e) {}
 }
-function sfxFountain(dur) {
-  if (!soundOn) return null;
-  try {
-    ensureAudio(); if (!audioCtx) return null;
-    const t = audioCtx.currentTime;
-    const n = noiseSrc(); const bp = audioCtx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 3200; bp.Q.value = .6;
-    const g = audioCtx.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(.05, t + .6); g.gain.setValueAtTime(.05, t + dur - .8); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    n.connect(bp).connect(g).connect(audioCtx.destination); n.start(t); n.stop(t + dur + .05);
-  } catch (e) {}
+function stopDance() {
+  clearTimeout(danceTimer);
+  $('danceOverlay').hidden = true;
+  $('danceSparks').innerHTML = '';
 }
-
-function fireworks(duration = 11000) {
+function fireworks(duration = 8000, title) {
+  // 이름은 유지(다른 코드에서 호출) — 실제로는 까마귀 댄스
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const cv = $('fireworks'); const ctx = cv.getContext('2d');
-  const W = innerWidth, H = innerHeight, dpr = Math.min(2, devicePixelRatio || 1);
-  cv.width = W * dpr; cv.height = H * dpr;
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  cv.hidden = false;
-  const rand = (a, b) => a + Math.random() * (b - a);
-  const HORIZON = H * .74;                       // 강물 수평선
-  // 한강 불꽃축제 색감: 금빛·은백·연보라·에메랄드·진분홍
-  const palettes = [
-    { main: ['#ffd27a', '#ffe9b0', '#ffb347'], type: 'willow' },
-    { main: ['#ffffff', '#eef0ff', '#cfd6ff'], type: 'chrys' },
-    { main: ['#c9b8ff', '#9d8bff', '#ffffff'], type: 'peony' },
-    { main: ['#8af0c8', '#4fd1a0', '#e8fff4'], type: 'peony' },
-    { main: ['#ff8fc8', '#ff5aa5', '#ffd6ea'], type: 'chrys' },
-    { main: ['#ffd27a', '#fff3cf', '#ffffff'], type: 'brocade' },
-    { main: ['#9ad8ff', '#5fb8ff', '#ffffff'], type: 'peony' }
-  ];
-  const shells = [], parts = [];
-  // 하늘 전용 오프스크린(반영용)
-  const sky = document.createElement('canvas'); sky.width = W * dpr; sky.height = Math.ceil(HORIZON * dpr);
-  const sctx = sky.getContext('2d'); sctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-  function launch(opts = {}) {
-    const pal = palettes[Math.floor(Math.random() * palettes.length)];
-    const big = opts.big ?? Math.random() < .5;
-    const x = opts.x ?? rand(W * .1, W * .9);
-    const targetY = opts.y ?? rand(H * .12, H * .42);
-    shells.push({ x, y: HORIZON, vx: rand(-.4, .4), vy: -Math.sqrt(2 * 0.16 * (HORIZON - targetY)) - .5, pal, big, trail: [] });
-    sfxWhoosh();
+  const ov = $('danceOverlay');
+  $('danceTitle').textContent = title || '축하해! 🎉';
+  $('danceSub').textContent = `반짝이 ${stickers.length}개 모았어요 ✨`;
+  const sparks = $('danceSparks'); sparks.innerHTML = '';
+  const emo = ['✨', '💎', '⭐', '🪙', '🔑', '💫', '🌟'];
+  for (let i = 0; i < 26; i++) {
+    const e = document.createElement('span');
+    e.textContent = emo[i % emo.length];
+    e.style.left = Math.random() * 100 + '%';
+    e.style.animationDelay = (Math.random() * 3) + 's';
+    e.style.animationDuration = (3 + Math.random() * 3) + 's';
+    e.style.fontSize = (18 + Math.random() * 26) + 'px';
+    sparks.append(e);
   }
-  function burst(sh) {
-    const { pal, big } = sh;
-    const type = pal.type;
-    const n = (big ? 260 : 150) + Math.floor(Math.random() * 90);
-    const base = (big ? rand(3.4, 4.6) : rand(2.2, 3.2));
-    const life = type === 'willow' || type === 'brocade' ? rand(150, 210) : rand(80, 125);
-    for (let i = 0; i < n; i++) {
-      const a = (i / n) * Math.PI * 2 + rand(-.05, .05);
-      const spread = type === 'peony' ? (0.75 + Math.random() * .35) : (0.45 + Math.random() * .6);
-      const sp = base * spread;
-      parts.push({ x: sh.x, y: sh.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life, max: life,
-        c: pal.main[Math.floor(Math.random() * pal.main.length)], type,
-        tw: type === 'chrys' || type === 'brocade', w: big ? 2.6 : 2, tr: [] });
-    }
-    // 꽃심
-    for (let i = 0; i < 36; i++) { const a = (i / 36) * Math.PI * 2; parts.push({ x: sh.x, y: sh.y, vx: Math.cos(a) * base * .28, vy: Math.sin(a) * base * .28, life: 55, max: 55, c: '#ffffff', type: 'core', w: 1.8, tr: [] }); }
-    parts.push({ x: sh.x, y: sh.y, vx: 0, vy: 0, life: 16, max: 16, c: '#ffffff', flash: true, big, tr: [] });
-    sfxBoom(big ? 1 : .7);
-  }
-  function niagara(el) {
-    // 다리에서 쏟아지는 금빛 나이아가라 (후반부)
-    for (let k = 0; k < 10; k++) {
-      const x = rand(W * .08, W * .92);
-      parts.push({ x, y: HORIZON - 22, vx: rand(-.25, .25), vy: rand(.6, 1.4), life: rand(40, 70), max: 70, c: Math.random() < .7 ? '#ffd27a' : '#fff3cf', type: 'nia', w: 1.6, tr: [] });
-    }
-  }
-  function drawBridge(c) {
-    // 한강 다리 실루엣 + 가로등
-    c.globalCompositeOperation = 'source-over';
-    c.fillStyle = '#05060a';
-    c.fillRect(0, HORIZON - 26, W, 10);
-    for (let x = W * .06; x < W; x += W * .094) {
-      c.fillRect(x - 3, HORIZON - 26, 6, 26);
-      c.beginPath(); c.arc(x + W * .047, HORIZON - 16, W * .047, 0, Math.PI); c.strokeStyle = '#05060a'; c.lineWidth = 3; c.stroke();
-      c.fillStyle = '#ffd27a'; c.globalAlpha = .9; c.beginPath(); c.arc(x, HORIZON - 30, 1.6, 0, Math.PI * 2); c.fill(); c.globalAlpha = 1; c.fillStyle = '#05060a';
-    }
-    // 멀리 도시 불빛
-    for (let i = 0; i < 60; i++) { const x = (i * 97.3) % W; const y = HORIZON - 34 - ((i * 31) % 40); c.fillStyle = i % 3 ? 'rgba(255,220,150,.35)' : 'rgba(180,200,255,.35)'; c.fillRect(x, y, 2, 2); }
-  }
-  const t0 = performance.now(); let nextLaunch = 300; let finaleDone = false;
-  (function frame(t) {
-    const el = t - t0;
-    const endFade = el > duration ? Math.max(0, 1 - (el - duration) / 1500) : 1;
-    // 발사 스케줄: 평소 1~2발, 7~9.5초 피날레 연발
-    if (el < duration - 1200 && el >= nextLaunch) {
-      const finale = el > duration * .62 && el < duration * .9;
-      const k = finale ? 3 + Math.floor(Math.random() * 3) : 1 + (Math.random() < .55 ? 1 : 0);
-      for (let i = 0; i < k; i++) launch(finale ? { big: Math.random() < .7 } : {});
-      nextLaunch = el + (finale ? rand(160, 300) : rand(420, 800));
-    }
-    if (el > duration * .35 && el < duration - 1200) niagara(el);
-
-    // ---- 하늘 그리기 (오프스크린) ----
-    sctx.globalCompositeOperation = 'source-over';
-    sctx.clearRect(0, 0, W, HORIZON);
-    const g = sctx.createLinearGradient(0, 0, 0, HORIZON); g.addColorStop(0, '#02030a'); g.addColorStop(1, '#0b0e22');
-    sctx.fillStyle = g; sctx.fillRect(0, 0, W, HORIZON);
-    sctx.globalCompositeOperation = 'lighter'; sctx.lineCap = 'round';
-    // 포탄 궤적
-    for (let i = shells.length - 1; i >= 0; i--) {
-      const sh = shells[i];
-      sh.trail.push([sh.x, sh.y]); if (sh.trail.length > 12) sh.trail.shift();
-      sh.x += sh.vx; sh.y += sh.vy; sh.vy += 0.16;
-      for (let k = 1; k < sh.trail.length; k++) {
-        sctx.globalAlpha = (k / sh.trail.length) * .7; sctx.strokeStyle = '#ffe2a8'; sctx.lineWidth = 1.6;
-        sctx.beginPath(); sctx.moveTo(sh.trail[k - 1][0], sh.trail[k - 1][1]); sctx.lineTo(sh.trail[k][0], sh.trail[k][1]); sctx.stroke();
-      }
-      if (sh.vy >= -0.6) { burst(sh); shells.splice(i, 1); }
-    }
-    // 불씨
-    for (let i = parts.length - 1; i >= 0; i--) {
-      const p = parts[i];
-      p.tr.push([p.x, p.y]); if (p.tr.length > (p.type === 'willow' || p.type === 'brocade' ? 9 : 5)) p.tr.shift();
-      p.x += p.vx; p.y += p.vy;
-      if (p.type === 'willow' || p.type === 'brocade') { p.vy += 0.055; p.vx *= .975; p.vy *= .992; }
-      else if (p.type === 'nia') { p.vy += 0.06; p.vx *= .99; }
-      else { p.vy += 0.035; p.vx *= .962; p.vy *= .975; }
-      p.life--;
-      if (p.life <= 0 || p.y > HORIZON + 4) { parts.splice(i, 1); continue; }
-      const a = p.life / p.max;
-      if (p.flash) {
-        sctx.globalAlpha = a * .9; sctx.fillStyle = '#fff';
-        sctx.beginPath(); sctx.arc(p.x, p.y, (p.big ? 70 : 42) * (1 - a) + 10, 0, Math.PI * 2); sctx.fill();
-        continue;
-      }
-      const twinkle = (p.tw && a < .6) ? rand(.25, 1) : 1;        // 반짝반짝 잔불
-      // 꼬리 (여러 점을 잇는 부드러운 선)
-      sctx.strokeStyle = p.c; sctx.lineWidth = p.w;
-      sctx.globalAlpha = Math.min(1, a * 1.25) * twinkle;
-      sctx.beginPath(); sctx.moveTo(p.tr[0][0], p.tr[0][1]); for (let k = 1; k < p.tr.length; k++) sctx.lineTo(p.tr[k][0], p.tr[k][1]); sctx.lineTo(p.x, p.y); sctx.stroke();
-      // 빛무리
-      sctx.globalAlpha *= .22; sctx.lineWidth = p.w * 3.2;
-      sctx.beginPath(); sctx.moveTo(p.tr[0][0], p.tr[0][1]); sctx.lineTo(p.x, p.y); sctx.stroke();
-    }
-    sctx.globalAlpha = 1;
-    drawBridge(sctx);
-
-    // ---- 화면 합성: 하늘 + 강물 반영 ----
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.globalAlpha = 1;
-    ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
-    ctx.drawImage(sky, 0, 0, sky.width, sky.height, 0, 0, W, HORIZON);
-    // 반영: 위아래 뒤집어 눌러 그리기 + 물결 어둡게
-    ctx.save();
-    ctx.translate(0, HORIZON); ctx.scale(1, -1);
-    ctx.globalAlpha = .38;
-    ctx.drawImage(sky, 0, 0, sky.width, sky.height, 0, -(H - HORIZON), W, (H - HORIZON) * 1.35);
-    ctx.restore();
-    const wg = ctx.createLinearGradient(0, HORIZON, 0, H); wg.addColorStop(0, 'rgba(0,0,0,.15)'); wg.addColorStop(1, 'rgba(0,0,0,.85)');
-    ctx.fillStyle = wg; ctx.fillRect(0, HORIZON, W, H - HORIZON);
-    for (let y = HORIZON + 6; y < H; y += 7) { ctx.fillStyle = 'rgba(0,0,0,.28)'; ctx.fillRect(0, y + Math.sin(el / 300 + y) * 1.5, W, 2); }
-    // 전체 페이드 (시작·끝)
-    const dimIn = Math.min(1, el / 500);
-    if (dimIn < 1 || endFade < 1) { ctx.globalAlpha = 1 - Math.min(dimIn, endFade); ctx.clearRect(0, 0, 0, 0); }
-    cv.style.opacity = String(Math.min(dimIn, endFade));
-
-    if (el < duration + 1500 || shells.length) requestAnimationFrame(frame);
-    else { ctx.clearRect(0, 0, W, H); cv.hidden = true; cv.style.opacity = ''; }
-  })(t0);
+  ov.hidden = false;
+  ov.classList.toggle('long', duration > 10000);
+  playDanceMusic(duration);
+  clearTimeout(danceTimer);
+  danceTimer = setTimeout(stopDance, duration);
 }
+$('danceClose').addEventListener('click', stopDance);
 
 // ---------- 우는 까마귀 (밤 10:30까지 숙제를 못 끝냈을 때, 하루 한 번) ----------
 const CRY_KEY = 'scene_cry_v1';
@@ -1642,7 +1559,7 @@ function cryCrow(remaining, duration = 60000) {
   cryTimer = setTimeout(stopCry, duration);
 }
 $('cryClose').addEventListener('click', stopCry);
-// 미리보기: 잠금 해제 상태에서 ✨ 숫자 칩을 탭하면 불꽃놀이, 길게(1.2초) 누르면 우는 까마귀
+// 미리보기: 잠금 해제 상태에서 ✨ 숫자 칩을 탭하면 까마귀 댄스, 길게(1.2초) 누르면 우는 까마귀
 (function previewTriggers() {
   const chip = $('stickerCount');
   let pressTimer = null, longPressed = false;
@@ -2332,7 +2249,7 @@ function renderStickers(newOne = false) {
   const lastWorld = worldIndex(n) === WORLDS.length - 1;
   if (newOne && onSheet === 0 && n > 0) note.textContent = `둥지 업그레이드! ${WORLDS[worldIndex(n)].emoji} ${WORLDS[worldIndex(n)].name} 완성 · 게임 1시간 🎮`;
   else if (gotToday) note.textContent = lastWorld ? `오늘 반짝이 획득! 마지막 둥지예요 👑` : `오늘 반짝이 획득! ${nextWorld.emoji} ${nextWorld.name}까지 ${10 - onSheet}개`;
-  else note.textContent = `미션 다 하면 반짝이 1개 · 5개마다 폭죽 🎆 · 10개 = 둥지 업그레이드 + 게임 1시간 🎮`;
+  else note.textContent = `미션 다 하면 반짝이 1개 · 5개마다 까마귀 댄스 🕺 · 10개 = 둥지 업그레이드 + 게임 1시간 🎮`;
 }
 
 function checkMorningCompletion() {
@@ -2346,8 +2263,8 @@ function checkMorningCompletion() {
     writeStore(STICKERS_KEY, JSON.stringify(stickers));
     renderStickers(true);
     stickerMsg = `반짝이 ${emoji} 획득! (${stickers.length}개째)`;
-    if (stickers.length % GOAL_NIGHTS === 0) { fireworks(16000); stickerMsg += ` 🏆 ${stickers.length}개 달성! 큰 선물 시간!`; }
-    else if (stickers.length % 5 === 0) { fireworks(); stickerMsg += ' 🎆'; }
+    if (stickers.length % GOAL_NIGHTS === 0) { fireworks(16000, `🏆 ${stickers.length}개 달성!`); stickerMsg += ` 🏆 ${stickers.length}개 달성! 큰 선물 시간!`; }
+    else if (stickers.length % 5 === 0) { fireworks(8000, '까마귀 댄스 타임! 🕺'); stickerMsg += ' 🕺'; }
     if (stickers.length % 10 === 0) {
       const w = WORLDS[worldIndex(stickers.length)];
       stickerMsg += ` 둥지 업그레이드 → ${w.emoji} ${w.name}! 게임 1시간 🎮`;
