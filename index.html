@@ -223,19 +223,8 @@ header {
 #danceOverlay .dance-sub { font-size: clamp(15px, 2vw, 24px); color: #e8e4da; font-weight: 800; margin-top: 4px; }
 #danceOverlay button { margin-top: 14px; background: var(--ember); border-color: #000; color: #000; }
 #danceOverlay.long .dance-title { color: #ffd27a; }
-/* 우는 까마귀 (숙제 못 끝냈을 때) */
-#cryOverlay { position: fixed; inset: 0; z-index: 40; background: #000; display: grid; place-items: center; text-align: center; color: #fff; animation: fadein .6s; }
 @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
-#cryOverlay .cry-crow { width: min(44vh, 60vw); height: min(44vh, 60vw); animation: sob 1.1s ease-in-out infinite; }
-@keyframes sob { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-10px) rotate(2deg); } }
-#cryOverlay .tear { animation: tear 1.1s ease-in infinite; }
-#cryOverlay .tear.t2 { animation-delay: .55s; }
-@keyframes tear { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(70px); opacity: 0; } }
-#cryOverlay .caw { font-family: var(--font-display); font-size: clamp(36px, 7vw, 84px); color: #fff; text-shadow: 0 0 24px rgba(255,255,255,.35); animation: cawpop 3s ease-in-out infinite; }
 @keyframes cawpop { 0%, 60%, 100% { transform: scale(1); opacity: .85; } 15%, 35% { transform: scale(1.12); opacity: 1; } }
-#cryOverlay .cry-msg { font-size: clamp(16px, 2.2vw, 26px); font-weight: 800; color: #d8d8e4; margin-top: 8px; }
-#cryOverlay .cry-sub { font-size: clamp(13px, 1.5vw, 18px); color: #8f8fa3; margin-top: 6px; font-weight: 700; }
-#cryOverlay button { margin-top: 18px; background: var(--ember); border-color: #000; color: #000; }
 
 .clock-wrap { text-align: right; flex-shrink: 0; }
 .clock {
@@ -1139,30 +1128,6 @@ html.theme-day .tasks-card.evening { background: #e9ebff; }
     <button type="button" id="danceClose">고마워 까마귀!</button>
   </div>
 </div>
-<div id="cryOverlay" hidden>
-  <div>
-    <svg class="cry-crow" viewBox="0 0 120 120" aria-hidden="true">
-      <path d="M34 74 L6 58 L24 78 L2 82 L26 86 L10 104 L36 88 Z" fill="#0b0c10" stroke="#33343f" stroke-width="1"/>
-      <path d="M30 80 C30 56 52 46 78 50 C98 54 100 78 86 92 C74 104 46 104 34 92 C30 88 30 84 30 80 Z" fill="#15161b" stroke="#33343f" stroke-width="1.5"/>
-      <circle cx="84" cy="44" r="20" fill="#15161b" stroke="#33343f" stroke-width="1.5"/>
-      <path d="M101 42 C112 44 120 48 126 52 C118 54 110 56 101 57 Z" fill="#ff9b1f"/>
-      <path d="M101 52 C110 52 118 52 126 52 C118 55 110 57 101 57 Z" fill="#d97a08"/>
-      <!-- 처진 눈썹 + 감긴 눈 -->
-      <path d="M80 31 L96 37" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/>
-      <path d="M83 43 Q90 37 97 43" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
-      <g class="tear"><path d="M86 47 q-4 7 0 10 q4 -3 0 -10z" fill="#8ad6ff"/></g>
-      <g class="tear t2"><path d="M94 47 q-4 7 0 10 q4 -3 0 -10z" fill="#8ad6ff"/></g>
-      <path d="M44 66 C56 50 82 54 94 66 C82 66 70 72 62 82 C54 92 44 84 44 66 Z" fill="#1e2027"/>
-      <path d="M50 70 C58 60 72 60 82 66" fill="none" stroke="#5b5fd6" stroke-width="2" stroke-linecap="round" opacity=".6"/>
-      <path d="M54 100 L50 112 M66 100 L66 112" stroke="#ff9b1f" stroke-width="3.2" stroke-linecap="round"/>
-      <path d="M50 112 L42 116 M50 112 L50 118 M50 112 L58 116 M66 112 L58 116 M66 112 L66 118 M66 112 L74 116" stroke="#ff9b1f" stroke-width="2.6" stroke-linecap="round"/>
-    </svg>
-    <div class="caw" id="cawText">까악… 까악…</div>
-    <div class="cry-msg" id="cryMsg">숙제가 아직 남았어요 😢</div>
-    <div class="cry-sub" id="crySub"></div>
-    <button type="button" id="cryClose">확인했어요</button>
-  </div>
-</div>
 <div class="toast" id="toast" hidden><div class="bubble" id="toastText"></div></div>
 
 <script>
@@ -1515,71 +1480,12 @@ function fireworks(duration = 8000, title) {
 }
 $('danceClose').addEventListener('click', stopDance);
 
-// ---------- 우는 까마귀 (밤 10:30까지 숙제를 못 끝냈을 때, 하루 한 번) ----------
-const CRY_KEY = 'scene_cry_v1';
-const CRY_HOUR = 22, CRY_MIN = 30;
-function sfxCaw() {
-  if (!soundOn) return;
-  try {
-    ensureAudio(); if (!audioCtx) return;
-    const t0 = audioCtx.currentTime;
-    [[0, .32], [.42, .38]].forEach(([d, len]) => {
-      const t = t0 + d;
-      const o = audioCtx.createOscillator(); o.type = 'sawtooth';
-      o.frequency.setValueAtTime(760, t); o.frequency.exponentialRampToValueAtTime(520, t + len);
-      const o2 = audioCtx.createOscillator(); o2.type = 'square';
-      o2.frequency.setValueAtTime(1520, t); o2.frequency.exponentialRampToValueAtTime(1040, t + len);
-      const bp = audioCtx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1100; bp.Q.value = 1.4;
-      const g = audioCtx.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(.32, t + .03); g.gain.setValueAtTime(.32, t + len * .55); g.gain.exponentialRampToValueAtTime(0.0001, t + len);
-      const g2 = audioCtx.createGain(); g2.gain.value = .25;
-      o.connect(bp); o2.connect(g2).connect(bp); bp.connect(g).connect(audioCtx.destination);
-      o.start(t); o.stop(t + len + .02); o2.start(t); o2.stop(t + len + .02);
-    });
-  } catch (e) {}
-}
-let cryTimer = null, cryCawTimer = null;
-function stopCry() {
-  clearTimeout(cryTimer); clearInterval(cryCawTimer);
-  $('cryOverlay').hidden = true;
-}
-function cryCrow(remaining, duration = 60000) {
-  const ov = $('cryOverlay');
-  ov.hidden = false;
-  sfxCaw();
-  clearInterval(cryCawTimer);
-  cryCawTimer = setInterval(sfxCaw, 3000);
-  const t0 = Date.now();
-  const tick = setInterval(() => {
-    const left = Math.max(0, Math.ceil((duration - (Date.now() - t0)) / 1000));
-    $('crySub').textContent = `남은 숙제 ${remaining}개 · ${left}초`;
-    if (ov.hidden || left <= 0) clearInterval(tick);
-  }, 250);
-  $('crySub').textContent = `남은 숙제 ${remaining}개 · 60초`;
-  clearTimeout(cryTimer);
-  cryTimer = setTimeout(stopCry, duration);
-}
-$('cryClose').addEventListener('click', stopCry);
-// 미리보기: 잠금 해제 상태에서 ✨ 숫자 칩을 탭하면 까마귀 댄스, 길게(1.2초) 누르면 우는 까마귀
+// 미리보기: 잠금 해제 상태에서 ✨ 숫자 칩을 탭하면 까마귀 댄스
 (function previewTriggers() {
   const chip = $('stickerCount');
-  let pressTimer = null, longPressed = false;
   chip.style.cursor = 'pointer';
-  chip.addEventListener('pointerdown', () => { longPressed = false; pressTimer = setTimeout(() => { longPressed = true; if (!locked) cryCrow(hw.items.filter(t => !t.done).length || 1, 15000); }, 1200); });
-  const end = () => { clearTimeout(pressTimer); };
-  chip.addEventListener('pointerup', () => { end(); if (!longPressed && !locked) { ensureAudio(); fireworks(); } });
-  chip.addEventListener('pointerleave', end); chip.addEventListener('pointercancel', end);
+  chip.addEventListener('click', () => { if (!locked) { ensureAudio(); fireworks(); } });
 })();
-function checkCryTime(now) {
-  if (readStore(CRY_KEY) === todayKey()) return;
-  const mins = now.getHours() * 60 + now.getMinutes();
-  const target = CRY_HOUR * 60 + CRY_MIN;
-  if (mins < target) return;
-  writeStore(CRY_KEY, todayKey());
-  if (mins >= target + 20) return;             // 너무 늦게 켰으면 건너뜀
-  buildHomeworkForToday();
-  const remaining = hw.items.filter(t => !t.done).length;
-  if (hw.items.length && remaining > 0) cryCrow(remaining);
-}
 
 // ---------- 오늘의 기분 (아이가 직접, 잠금과 무관) ----------
 const MOOD_KEY = 'scene_mood_v1';
@@ -1673,7 +1579,6 @@ function updateClock() {
   else if (autoMode() !== lastAutoMode) { lastAutoMode = autoMode(); modeOverride = null; renderTasks(); }
   if (currentMode() === 'day' && now.getSeconds() === 0) { renderTasks(); renderUpcoming(); }
   applyTheme();
-  checkCryTime(now);
   updateGreeting();
 }
 let lastAutoMode = null;
