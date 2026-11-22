@@ -1542,6 +1542,16 @@ function cryCrow(remaining, duration = 60000) {
   cryTimer = setTimeout(stopCry, duration);
 }
 $('cryClose').addEventListener('click', stopCry);
+// 미리보기: 잠금 해제 상태에서 ✨ 숫자 칩을 탭하면 불꽃놀이, 길게(1.2초) 누르면 우는 까마귀
+(function previewTriggers() {
+  const chip = $('stickerCount');
+  let pressTimer = null, longPressed = false;
+  chip.style.cursor = 'pointer';
+  chip.addEventListener('pointerdown', () => { longPressed = false; pressTimer = setTimeout(() => { longPressed = true; if (!locked) cryCrow(hw.items.filter(t => !t.done).length || 1, 15000); }, 1200); });
+  const end = () => { clearTimeout(pressTimer); };
+  chip.addEventListener('pointerup', () => { end(); if (!longPressed && !locked) { ensureAudio(); fireworks(); } });
+  chip.addEventListener('pointerleave', end); chip.addEventListener('pointercancel', end);
+})();
 function checkCryTime(now) {
   if (readStore(CRY_KEY) === todayKey()) return;
   const mins = now.getHours() * 60 + now.getMinutes();
