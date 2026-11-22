@@ -593,29 +593,29 @@ button:focus-visible, input:focus-visible, [contenteditable]:focus-visible {
 .weather-item .w-temp small { display: block; font-family: var(--font); font-size: .62em; font-weight: 800; color: var(--muted); white-space: nowrap; }
 .weather-item .w-desc { grid-column: 1 / 3; font-size: clamp(11px, 1.1vw, 13px); color: var(--ink-soft); font-weight: 800; margin-top: 4px; overflow-wrap: anywhere; }
 
-.dad-card { display: flex; flex-direction: column; background: #fff0cf; }
-.dad-time {
-  font-family: var(--font-num);
-  font-weight: 900;
-  font-size: clamp(36px, 4.6vw, 58px);
-  line-height: 1.1;
-  font-variant-numeric: tabular-nums;
-  min-height: 1.1em;
-  outline: none;
-  color: #fff;
-  -webkit-text-stroke: 1.5px var(--ink);
-  text-shadow: 3px 3px 0 var(--ink);
-  letter-spacing: 1px;
+.mood-card { display: flex; flex-direction: column; background: #fff4df; --stud: var(--yellow); }
+.mood-row { display: flex; gap: 6px; justify-content: space-between; }
+.mood-row button {
+  flex: 1; padding: 6px 0; font-size: clamp(22px, 2.6vw, 32px); line-height: 1.1;
+  background: #fff; border-width: 2.5px; box-shadow: 0 3px 0 var(--ink); filter: grayscale(.6); opacity: .7;
 }
-.dad-note {
-  margin-top: 8px;
-  font-size: clamp(14px, 1.5vw, 18px);
-  font-weight: 800;
-  line-height: 1.4;
-  min-height: 1.4em;
-  outline: none;
-  overflow-wrap: anywhere;
+.mood-row button.on { filter: none; opacity: 1; background: var(--yellow); transform: translateY(-2px); box-shadow: 0 5px 0 var(--ink); }
+.mood-row button:active { transform: translateY(3px); box-shadow: none; }
+.mood-note {
+  flex: 1 1 auto; min-height: 2.8em; margin-top: 10px;
+  font-size: clamp(14px, 1.5vw, 18px); font-weight: 800; line-height: 1.45;
+  outline: none; overflow-wrap: anywhere; overflow-y: auto;
+  background: rgba(255,255,255,.7); border: 2.5px dashed var(--line-strong, #cfc6e4); border-radius: 10px; padding: 8px 10px;
 }
+.mood-week { display: flex; gap: 4px; margin-top: 8px; }
+.mood-week span {
+  flex: 1; text-align: center; font-size: clamp(13px, 1.4vw, 17px); line-height: 1;
+  background: rgba(255,255,255,.7); border: 2px solid var(--ink); border-radius: 6px; padding: 3px 0; opacity: .9;
+}
+.mood-week span.empty { opacity: .3; }
+.mood-week span.today { background: var(--yellow); }
+.mood-week small { display: block; font-size: 9px; font-weight: 900; color: var(--muted); margin-top: 2px; }
+html.theme-day .mood-card { background: #fff6dc; }
 [contenteditable="true"], [contenteditable="plaintext-only"] {
   border-radius: 8px;
   box-shadow: inset 0 0 0 2px transparent;
@@ -634,7 +634,6 @@ button:focus-visible, input:focus-visible, [contenteditable]:focus-visible {
   -webkit-text-stroke: 0;
   text-shadow: none;
 }
-.dad-time:empty::before { font-family: var(--font); font-weight: 800; font-size: .42em; line-height: 2.6; -webkit-text-stroke: 0; text-shadow: none; color: var(--muted); }
 
 /* ---------- 주간 스케줄 ---------- */
 .week-card { background: #e9f2e4; max-height: 30vh; display: flex; flex-direction: column; }
@@ -754,11 +753,6 @@ button:focus-visible, input:focus-visible, [contenteditable]:focus-visible {
 .weekdots i.on { background: var(--ember); }
 .weekdots i.today { box-shadow: 0 0 0 2px var(--yellow); }
 .weekdots i.future { opacity: .35; }
-/* 아빠 상태 버튼 */
-.dad-status { display: flex; gap: 6px; margin-top: auto; padding-top: 8px; }
-.dad-status button { flex: 1; padding: 7px 4px; font-size: clamp(12px, 1.2vw, 14px); box-shadow: 0 3px 0 var(--ink); background: #fff; }
-.dad-status button.on { background: var(--green); }
-.dad-status button:active { transform: translateY(3px); box-shadow: none; }
 
 /* 출발 시각 칸 */
 .depart {
@@ -830,7 +824,6 @@ html.theme-day .card { box-shadow: var(--shadow-ink); }
 html.theme-day .timer-card[data-stage="calm"] { background: #e8f4ff; }
 html.theme-day .timer-card[data-stage="hurry"] { background: #fff2cf; }
 html.theme-day .timer-card[data-stage="urgent"] { background: #ffd9d9; }
-html.theme-day .dad-card { background: #fff6dc; }
 html.theme-day .week-card { background: #eefbf0; }
 html.theme-day .tasks-card.evening { background: #e9ebff; }
 
@@ -855,7 +848,7 @@ html.theme-day .tasks-card.evening { background: #e9ebff; }
 .timer-card { --stud: var(--ember); }
 .tasks-card { --stud: var(--green); }
 .weather-card { --stud: var(--blue); }
-.dad-card { --stud: var(--yellow); }
+.mood-card { --stud: var(--yellow); }
 .week-card { --stud: var(--purple); }
 .task, .weather-item, .day, .agenda-item, .slot, .add-area input, .duration, .chip, .stage, .level, .depart, .mode-chip, .eyebrow, button { border-radius: 8px; }
 .slot { border-radius: 6px; }
@@ -1066,18 +1059,20 @@ html.theme-day .tasks-card.evening { background: #e9ebff; }
         </div>
       </section>
 
-      <section class="card dad-card">
+      <section class="card mood-card">
         <div class="card-head">
-          <h2 id="dadTitle" contenteditable="plaintext-only" data-placeholder="🏕️ 아빠 캠프 복귀"></h2>
-          <span class="tiny" id="dadStamp"></span>
+          <h2>💬 오늘의 기분</h2>
+          <span class="tiny" id="moodStamp"></span>
         </div>
-        <div class="dad-time" id="dadTime" contenteditable="plaintext-only" data-placeholder="예: 7:30"></div>
-        <div class="dad-note" id="dadNote" contenteditable="plaintext-only" data-placeholder="오늘 아빠는 어디에 있을까요? 한 줄 적어 주세요"></div>
-        <div class="dad-status" id="dadStatus">
-          <button type="button" data-st="office">🏢 회사</button>
-          <button type="button" data-st="commute">🚶 복귀 중</button>
-          <button type="button" data-st="home">🏕️ 캠프</button>
+        <div class="mood-row" id="moodRow">
+          <button type="button" data-mood="😄" title="최고예요">😄</button>
+          <button type="button" data-mood="🙂" title="좋아요">🙂</button>
+          <button type="button" data-mood="😐" title="그냥 그래요">😐</button>
+          <button type="button" data-mood="😢" title="슬퍼요">😢</button>
+          <button type="button" data-mood="😠" title="화나요">😠</button>
         </div>
+        <div class="mood-note" id="moodNote" contenteditable="plaintext-only" data-placeholder="오늘 있었던 일을 한 줄 적어 봐요 ✏️"></div>
+        <div class="mood-week" id="moodWeek" title="이번 주 기분"></div>
       </section>
     </div>
   </main>
@@ -1300,55 +1295,65 @@ function renderWeek() {
   });
 }
 
-// ---------- 아빠 귀가 ----------
-const DAD_KEY = 'scene_dad_v1';
-let dad = readJSON(DAD_KEY, { title: '', time: '', note: '', updated: '' });
-const DAD_STATUS = { office: '🏢 회사에 있어요', commute: '🚶 캠프로 오는 중!', home: '🏕️ 캠프에 있어요' };
-function renderDadStatus() {
-  document.querySelectorAll('#dadStatus button').forEach(b => b.classList.toggle('on', b.dataset.st === dad.status));
+// ---------- 오늘의 기분 (아이가 직접, 잠금과 무관) ----------
+const MOOD_KEY = 'scene_mood_v1';
+let moods = readJSON(MOOD_KEY, {});
+if (!moods || typeof moods !== 'object' || Array.isArray(moods)) moods = {};
+function todayMood() { return moods[todayKey()] || { mood: '', note: '', at: 0 }; }
+function saveMood(patch) {
+  const m = { ...todayMood(), ...patch, at: Date.now() };
+  moods[todayKey()] = m;
+  // 60일 넘은 기록은 정리
+  const keys = Object.keys(moods).sort();
+  while (keys.length > 60) delete moods[keys.shift()];
+  writeStore(MOOD_KEY, JSON.stringify(moods));
+  renderMoodStamp(); renderMoodWeek();
 }
-document.querySelectorAll('#dadStatus button').forEach(b => b.addEventListener('click', () => {
-  dad.status = dad.status === b.dataset.st ? '' : b.dataset.st;
-  dad.statusAt = Date.now();
-  dad.updated = todayKey();
-  writeStore(DAD_KEY, JSON.stringify(dad));
-  renderDadStatus(); renderDadStamp();
-  if (dad.status === 'commute') showToast('아빠 복귀 중! 🚶', '곧 캠프에 도착해요', 2500);
-}));
-function renderDad() {
-  renderDadStatus();
-  $('dadTitle').textContent = dad.title || '';
-  $('dadTime').textContent = dad.time || '';
-  $('dadNote').textContent = dad.note || '';
-  renderDadStamp();
+function renderMood() {
+  const m = todayMood();
+  document.querySelectorAll('#moodRow button').forEach(b => b.classList.toggle('on', b.dataset.mood === m.mood));
+  if ($('moodNote').innerText.trim() !== (m.note || '')) $('moodNote').textContent = m.note || '';
+  renderMoodStamp(); renderMoodWeek();
 }
-function renderDadStamp() {
-  const el = $('dadStamp');
-  if (dad.status && dad.statusAt) {
-    const d = new Date(dad.statusAt);
-    el.textContent = `${DAD_STATUS[dad.status] || ''} · ${dateKey(d) === todayKey() ? '' : shortDate(d) + ' '}${timeLabel(d)}`;
-    return;
+function renderMoodStamp() {
+  const m = todayMood();
+  const names = { '😄': '최고예요', '🙂': '좋아요', '😐': '그냥 그래요', '😢': '슬퍼요', '😠': '화나요' };
+  $('moodStamp').textContent = m.mood ? `${names[m.mood] || ''} · ${timeLabel(new Date(m.at))}` : '오늘 기분은 어때요?';
+}
+function renderMoodWeek() {
+  const box = $('moodWeek'); box.innerHTML = '';
+  const now = new Date();
+  const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - todayIndex());
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday); d.setDate(monday.getDate() + i);
+    const m = moods[dateKey(d)];
+    const el = document.createElement('span');
+    el.textContent = m && m.mood ? m.mood : '·';
+    if (!(m && m.mood)) el.classList.add('empty');
+    if (i === todayIndex()) el.classList.add('today');
+    const lab = document.createElement('small'); lab.textContent = DAYS[i]; el.append(lab);
+    if (m && m.note) el.title = m.note;
+    box.append(el);
   }
-  if (!dad.updated) { el.textContent = ''; return; }
-  el.textContent = dad.updated === todayKey() ? '오늘 업데이트 ✓' : `${dad.updated.slice(5).replace('-', '/')} 입력`;
 }
-[['dadTitle', 'title'], ['dadTime', 'time'], ['dadNote', 'note']].forEach(([id, field]) => {
-  const el = $(id);
-  el.dataset.editable = '1';
+document.querySelectorAll('#moodRow button').forEach(b => b.addEventListener('click', () => {
+  const cur = todayMood().mood;
+  saveMood({ mood: cur === b.dataset.mood ? '' : b.dataset.mood });
+  document.querySelectorAll('#moodRow button').forEach(x => x.classList.toggle('on', x.dataset.mood === todayMood().mood));
+  if (todayMood().mood) playNotes([[880, .08], [1174, .1]]);
+}));
+(function initMoodNote() {
+  const el = $('moodNote');
   el.addEventListener('input', () => {
     if (el.textContent.trim() === '') el.innerHTML = '';
-    dad[field] = el.innerText.trim();
-    dad.updated = todayKey();
-    writeStore(DAD_KEY, JSON.stringify(dad));
-    renderDadStamp();
+    saveMood({ note: el.innerText.trim() });
   });
-  el.addEventListener('keydown', e => { if (e.key === 'Enter' && field !== 'note') { e.preventDefault(); el.blur(); } });
   el.addEventListener('paste', e => {
     e.preventDefault();
     const txt = (e.clipboardData || window.clipboardData).getData('text');
     document.execCommand('insertText', false, txt);
   });
-});
+})();
 
 // ---------- 시계 + 인사 ----------
 const dateFormat = new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
@@ -1395,7 +1400,7 @@ function resetForNewDay() {
   if (timer.status !== 'idle') { timer.status = 'idle'; timer.remaining = timer.duration; saveTimer(); }
   renderWeek();
   renderStickers();
-  renderDadStamp();
+  renderMood();
 }
 
 // ---------- 날씨 ----------
@@ -2215,7 +2220,7 @@ document.addEventListener('visibilitychange', () => {
 
 // ---------- 시작 ----------
 renderWeek();
-renderDad();
+renderMood();
 applyLock();          // renderTasks 포함
 renderStickers();
 renderSound();
