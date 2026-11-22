@@ -173,7 +173,7 @@ header {
 .crow { width: 62px; height: 62px; animation: idle 2.6s ease-in-out infinite; filter: drop-shadow(0 4px 0 rgba(0,0,0,.7)); }
 .crow svg { width: 100%; height: 100%; overflow: visible; }
 @keyframes idle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
-.crow .wing { transform-origin: 56px 64px; }
+.crow .wing { transform-origin: 48px 70px; }
 .crow.happy { animation: hop .5s cubic-bezier(.3, 1.6, .5, 1) infinite alternate; }
 .crow.happy .wing { animation: flap .25s ease-in-out infinite alternate; }
 @keyframes hop { from { transform: translateY(0) rotate(-3deg); } to { transform: translateY(-12px) rotate(3deg); } }
@@ -343,6 +343,8 @@ button:focus-visible, input:focus-visible, [contenteditable]:focus-visible {
 .add-area.mini input { padding: 5px 10px; font-size: 13px; }
 .add-area.mini button { padding: 4px 10px; font-size: 13px; }
 .locked .add-area.mini { display: none; }
+.locked #importBtn { display: none; }
+#importArea { margin: 0 0 8px; }
 .stream {
   stroke: var(--sand);
   stroke-width: 4;
@@ -890,18 +892,28 @@ html.theme-day .tasks-card.evening { background: #e9ebff; }
       <div class="hero-left">
         <div class="crow" id="crow" aria-hidden="true">
           <svg viewBox="0 0 120 120">
-            <path d="M38 70 C20 60 14 44 22 30 C34 44 44 50 52 58 Z" fill="#0b0c10"/>
-            <ellipse cx="62" cy="76" rx="34" ry="26" fill="#15161b"/>
-            <path d="M28 86 C10 96 6 108 12 114 C22 106 30 98 40 92 Z" fill="#0b0c10"/>
-            <circle cx="78" cy="44" r="22" fill="#15161b"/>
-            <path d="M96 42 L120 48 L96 56 Z" fill="#ff9b1f"/>
-            <path d="M96 48 L118 49 L96 55 Z" fill="#d97a08"/>
-            <circle cx="84" cy="40" r="6.5" fill="#fff"/>
-            <circle cx="86" cy="40" r="3.5" fill="#000"/>
-            <circle cx="87.5" cy="38.5" r="1.3" fill="#fff"/>
-            <g class="wing"><path d="M52 66 C40 50 46 36 62 34 C58 50 62 60 76 70 Z" fill="#1e2027"/><path d="M58 64 C50 54 54 44 64 42" fill="none" stroke="#5b5fd6" stroke-width="2" stroke-linecap="round" opacity=".7"/></g>
-            <path d="M48 100 L44 112 M54 100 L54 112 M60 100 L64 112" stroke="#ff9b1f" stroke-width="3" stroke-linecap="round"/>
-            <path d="M44 112 L36 116 M54 112 L52 118 M64 112 L70 116" stroke="#ff9b1f" stroke-width="3" stroke-linecap="round"/>
+            <!-- 꼬리 깃 -->
+            <path d="M34 74 L6 58 L24 78 L2 82 L26 86 L10 104 L36 88 Z" fill="#0b0c10"/>
+            <!-- 몸통 -->
+            <path d="M30 80 C30 56 52 46 78 50 C98 54 100 78 86 92 C74 104 46 104 34 92 C30 88 30 84 30 80 Z" fill="#15161b"/>
+            <!-- 머리 -->
+            <circle cx="84" cy="44" r="20" fill="#15161b"/>
+            <!-- 부리 -->
+            <path d="M101 40 C112 42 120 46 126 50 C118 52 110 54 101 55 Z" fill="#ff9b1f"/>
+            <path d="M101 50 C110 50 118 50 126 50 C118 53 110 55 101 55 Z" fill="#d97a08"/>
+            <!-- 눈 -->
+            <circle cx="90" cy="41" r="6.5" fill="#fff"/>
+            <circle cx="92" cy="41.5" r="3.6" fill="#000"/>
+            <circle cx="93.6" cy="39.8" r="1.4" fill="#fff"/>
+            <!-- 날개 -->
+            <g class="wing">
+              <path d="M44 66 C56 50 82 54 94 66 C82 66 70 72 62 82 C54 92 44 84 44 66 Z" fill="#1e2027"/>
+              <path d="M50 70 C58 60 72 60 82 66" fill="none" stroke="#5b5fd6" stroke-width="2" stroke-linecap="round" opacity=".75"/>
+              <path d="M52 78 C60 70 70 70 78 74" fill="none" stroke="#5b5fd6" stroke-width="1.6" stroke-linecap="round" opacity=".45"/>
+            </g>
+            <!-- 다리 -->
+            <path d="M54 100 L50 112 M66 100 L66 112" stroke="#ff9b1f" stroke-width="3.2" stroke-linecap="round"/>
+            <path d="M50 112 L42 116 M50 112 L50 118 M50 112 L58 116 M66 112 L58 116 M66 112 L66 118 M66 112 L74 116" stroke="#ff9b1f" stroke-width="2.6" stroke-linecap="round"/>
           </svg>
         </div>
         <label class="photo" id="photoFrame" title="사진 넣기 (이 기기에만 저장)">
@@ -1054,6 +1066,12 @@ html.theme-day .tasks-card.evening { background: #e9ebff; }
       <span class="weekdots" id="weekdots" title="이번 주 배지"></span>
       <span class="tiny" id="weekHint" style="margin-left:8px">칸을 눌러 적어 주세요</span>
       <button class="week-toggle" id="weekToggle" type="button">📚 숙제 틀</button>
+      <button class="week-toggle" id="importBtn" type="button">📥 불러오기</button>
+    </div>
+    <div class="add-area mini" id="importArea" hidden>
+      <input id="importCode" placeholder="시간표 코드를 붙여 넣고 적용을 누르세요" autocomplete="off">
+      <button id="importApply" type="button">적용</button>
+      <button id="importExport" type="button" title="지금 시간표를 코드로 복사">복사</button>
     </div>
     <div class="week" id="week"></div>
   </section>
@@ -1063,19 +1081,20 @@ html.theme-day .tasks-card.evening { background: #e9ebff; }
 <div id="cryOverlay" hidden>
   <div>
     <svg class="cry-crow" viewBox="0 0 120 120" aria-hidden="true">
-      <path d="M38 70 C20 60 14 44 22 30 C34 44 44 50 52 58 Z" fill="#0b0c10" stroke="#3a3a48" stroke-width="1"/>
-      <ellipse cx="62" cy="78" rx="34" ry="24" fill="#15161b" stroke="#3a3a48" stroke-width="1.5"/>
-      <path d="M28 88 C10 98 6 110 12 116 C22 108 30 100 40 94 Z" fill="#0b0c10" stroke="#3a3a48" stroke-width="1"/>
-      <circle cx="78" cy="46" r="22" fill="#15161b" stroke="#3a3a48" stroke-width="1.5"/>
-      <path d="M96 46 L120 54 L96 58 Z" fill="#ff9b1f"/>
-      <path d="M96 52 L116 55 L96 57 Z" fill="#d97a08"/>
-      <path d="M74 34 L90 40" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
-      <path d="M77 44 Q84 38 91 44" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
-      <circle cx="84" cy="43" r="2.2" fill="#fff"/>
-      <g class="tear"><path d="M80 48 q-4 7 0 10 q4 -3 0 -10z" fill="#8ad6ff"/></g>
-      <g class="tear t2"><path d="M88 48 q-4 7 0 10 q4 -3 0 -10z" fill="#8ad6ff"/></g>
-      <path d="M52 68 C40 52 46 38 62 36 C58 52 62 62 76 72 Z" fill="#1e2027"/>
-      <path d="M48 102 L44 114 M54 102 L54 114 M60 102 L64 114" stroke="#ff9b1f" stroke-width="3" stroke-linecap="round"/>
+      <path d="M34 74 L6 58 L24 78 L2 82 L26 86 L10 104 L36 88 Z" fill="#0b0c10" stroke="#33343f" stroke-width="1"/>
+      <path d="M30 80 C30 56 52 46 78 50 C98 54 100 78 86 92 C74 104 46 104 34 92 C30 88 30 84 30 80 Z" fill="#15161b" stroke="#33343f" stroke-width="1.5"/>
+      <circle cx="84" cy="44" r="20" fill="#15161b" stroke="#33343f" stroke-width="1.5"/>
+      <path d="M101 42 C112 44 120 48 126 52 C118 54 110 56 101 57 Z" fill="#ff9b1f"/>
+      <path d="M101 52 C110 52 118 52 126 52 C118 55 110 57 101 57 Z" fill="#d97a08"/>
+      <!-- 처진 눈썹 + 감긴 눈 -->
+      <path d="M80 31 L96 37" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/>
+      <path d="M83 43 Q90 37 97 43" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+      <g class="tear"><path d="M86 47 q-4 7 0 10 q4 -3 0 -10z" fill="#8ad6ff"/></g>
+      <g class="tear t2"><path d="M94 47 q-4 7 0 10 q4 -3 0 -10z" fill="#8ad6ff"/></g>
+      <path d="M44 66 C56 50 82 54 94 66 C82 66 70 72 62 82 C54 92 44 84 44 66 Z" fill="#1e2027"/>
+      <path d="M50 70 C58 60 72 60 82 66" fill="none" stroke="#5b5fd6" stroke-width="2" stroke-linecap="round" opacity=".6"/>
+      <path d="M54 100 L50 112 M66 100 L66 112" stroke="#ff9b1f" stroke-width="3.2" stroke-linecap="round"/>
+      <path d="M50 112 L42 116 M50 112 L50 118 M50 112 L58 116 M66 112 L58 116 M66 112 L66 118 M66 112 L74 116" stroke="#ff9b1f" stroke-width="2.6" stroke-linecap="round"/>
     </svg>
     <div class="caw" id="cawText">까악… 까악…</div>
     <div class="cry-msg" id="cryMsg">숙제가 아직 남았어요 😢</div>
@@ -1231,6 +1250,36 @@ function renderWeekDots() {
   }
 }
 
+// 시간표 코드: 학원표 7칸 + 숙제 틀 7칸을 한 줄 코드로 (기기 간 옮기기용)
+function encodeSchedule() {
+  const json = JSON.stringify({ w: week, h: hwTpl });
+  return 'CK1.' + btoa(unescape(encodeURIComponent(json)));
+}
+function decodeSchedule(code) {
+  try {
+    const m = String(code).trim().match(/^CK1\.(.+)$/);
+    if (!m) return null;
+    const o = JSON.parse(decodeURIComponent(escape(atob(m[1]))));
+    if (!Array.isArray(o.w) || o.w.length !== 7) return null;
+    return o;
+  } catch (e) { return null; }
+}
+$('importBtn').addEventListener('click', () => { if (locked) return; $('importArea').hidden = !$('importArea').hidden; });
+$('importApply').addEventListener('click', () => {
+  const o = decodeSchedule($('importCode').value);
+  if (!o) { showToast('코드를 읽지 못했어요', 'CK1. 으로 시작하는 코드를 붙여 넣어 주세요', 2600); return; }
+  week = o.w.map(x => String(x || ''));
+  writeStore(WEEK_KEY, JSON.stringify(week));
+  if (Array.isArray(o.h) && o.h.length === 7) { hwTpl = o.h.map(x => String(x || '')); writeStore(HW_TPL_KEY, JSON.stringify(hwTpl)); syncHomeworkTemplate(); }
+  $('importCode').value = ''; $('importArea').hidden = true;
+  renderWeek(); renderTasks(); updateGreeting();
+  showToast('시간표 불러왔어요 📥', '학원표와 숙제 틀이 채워졌어요', 2600);
+});
+$('importExport').addEventListener('click', async () => {
+  const code = encodeSchedule();
+  $('importCode').value = code;
+  try { await navigator.clipboard.writeText(code); showToast('코드 복사됨 📋', '다른 기기의 불러오기 칸에 붙여 넣으세요', 2600); } catch (e) { $('importCode').select(); }
+});
 let weekView = 'schedule';
 $('weekToggle').addEventListener('click', () => {
   weekView = weekView === 'schedule' ? 'homework' : 'schedule';
@@ -1395,7 +1444,7 @@ function sfxFountain(dur) {
   } catch (e) {}
 }
 
-function fireworks(duration = 8000) {
+function fireworks(duration = 11000) {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const cv = $('fireworks'); const ctx = cv.getContext('2d');
   const W = innerWidth, H = innerHeight, dpr = Math.min(2, devicePixelRatio || 1);
@@ -1403,98 +1452,149 @@ function fireworks(duration = 8000) {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   cv.hidden = false;
   const rand = (a, b) => a + Math.random() * (b - a);
+  const HORIZON = H * .74;                       // 강물 수평선
+  // 한강 불꽃축제 색감: 금빛·은백·연보라·에메랄드·진분홍
   const palettes = [
-    ['#ffffff', '#f4f2ff', '#dcd6ff'],            // 은백색
-    ['#c7b9ff', '#9d8cff', '#e9e2ff'],            // 연보라
-    ['#ffffff', '#ffe9a8', '#ffd98a'],            // 금빛
-    ['#ffb3df', '#ff8ad0', '#ffe1f2'],            // 분홍
-    ['#b9ecff', '#8ad6ff', '#ffffff']             // 하늘빛
+    { main: ['#ffd27a', '#ffe9b0', '#ffb347'], type: 'willow' },
+    { main: ['#ffffff', '#eef0ff', '#cfd6ff'], type: 'chrys' },
+    { main: ['#c9b8ff', '#9d8bff', '#ffffff'], type: 'peony' },
+    { main: ['#8af0c8', '#4fd1a0', '#e8fff4'], type: 'peony' },
+    { main: ['#ff8fc8', '#ff5aa5', '#ffd6ea'], type: 'chrys' },
+    { main: ['#ffd27a', '#fff3cf', '#ffffff'], type: 'brocade' },
+    { main: ['#9ad8ff', '#5fb8ff', '#ffffff'], type: 'peony' }
   ];
-  const rockets = [], parts = [], fountains = [];
-  const nF = W > 900 ? 7 : 5;
-  for (let i = 0; i < nF; i++) fountains.push({ x: W * (i + .5) / nF, start: 500 + i * 120, hue: i % 2 ? ['#ffd1ea', '#ff9ad0', '#ffffff'] : ['#ffffff', '#ffe3f1', '#ffb3df'] });
-  function launch() {
+  const shells = [], parts = [];
+  // 하늘 전용 오프스크린(반영용)
+  const sky = document.createElement('canvas'); sky.width = W * dpr; sky.height = Math.ceil(HORIZON * dpr);
+  const sctx = sky.getContext('2d'); sctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  function launch(opts = {}) {
     const pal = palettes[Math.floor(Math.random() * palettes.length)];
-    const big = Math.random() < .55;
-    rockets.push({ x: rand(W * .12, W * .88), y: H + 10, vx: rand(-.5, .5), vy: -rand(H * (big ? .0185 : .016), H * (big ? .0215 : .019)), pal, big, trail: [] });
+    const big = opts.big ?? Math.random() < .5;
+    const x = opts.x ?? rand(W * .1, W * .9);
+    const targetY = opts.y ?? rand(H * .12, H * .42);
+    shells.push({ x, y: HORIZON, vx: rand(-.4, .4), vy: -Math.sqrt(2 * 0.16 * (HORIZON - targetY)) - .5, pal, big, trail: [] });
     sfxWhoosh();
   }
-  function explode(r) {
-    const n = r.big ? 260 + Math.floor(Math.random() * 120) : 150 + Math.floor(Math.random() * 80);
-    const base = r.big ? rand(3.0, 4.3) : rand(2.0, 3.0);
-    const crackle = Math.random() < .5;
+  function burst(sh) {
+    const { pal, big } = sh;
+    const type = pal.type;
+    const n = (big ? 260 : 150) + Math.floor(Math.random() * 90);
+    const base = (big ? rand(3.4, 4.6) : rand(2.2, 3.2));
+    const life = type === 'willow' || type === 'brocade' ? rand(150, 210) : rand(80, 125);
     for (let i = 0; i < n; i++) {
-      const a = (i / n) * Math.PI * 2 + rand(-.04, .04);
-      const sp = base * (0.55 + Math.random() * .55);     // 국화형: 비슷한 속도로 둥글게
-      parts.push({ x: r.x, y: r.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: rand(70, 120), max: 120,
-        c: r.pal[Math.floor(Math.random() * r.pal.length)], tw: crackle && Math.random() < .4, px: r.x, py: r.y, w: r.big ? 2.4 : 1.8 });
+      const a = (i / n) * Math.PI * 2 + rand(-.05, .05);
+      const spread = type === 'peony' ? (0.75 + Math.random() * .35) : (0.45 + Math.random() * .6);
+      const sp = base * spread;
+      parts.push({ x: sh.x, y: sh.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life, max: life,
+        c: pal.main[Math.floor(Math.random() * pal.main.length)], type,
+        tw: type === 'chrys' || type === 'brocade', w: big ? 2.6 : 2, tr: [] });
     }
-    // 안쪽 작은 꽃심
-    const m = 40;
-    for (let i = 0; i < m; i++) { const a = (i / m) * Math.PI * 2; const sp = base * .3; parts.push({ x: r.x, y: r.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: 60, max: 60, c: '#ffffff', px: r.x, py: r.y, w: 1.6 }); }
-    parts.push({ x: r.x, y: r.y, vx: 0, vy: 0, life: 14, max: 14, c: '#ffffff', flash: true, px: r.x, py: r.y, big: r.big });
-    sfxBoom(r.big ? 1 : .7);
+    // 꽃심
+    for (let i = 0; i < 36; i++) { const a = (i / 36) * Math.PI * 2; parts.push({ x: sh.x, y: sh.y, vx: Math.cos(a) * base * .28, vy: Math.sin(a) * base * .28, life: 55, max: 55, c: '#ffffff', type: 'core', w: 1.8, tr: [] }); }
+    parts.push({ x: sh.x, y: sh.y, vx: 0, vy: 0, life: 16, max: 16, c: '#ffffff', flash: true, big, tr: [] });
+    sfxBoom(big ? 1 : .7);
   }
-  function emitFountain(f) {
-    for (let i = 0; i < 6; i++) {
-      const a = -Math.PI / 2 + rand(-.32, .32);
-      const sp = rand(H * .009, H * .0155);
-      parts.push({ x: f.x + rand(-4, 4), y: H - 2, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: rand(45, 75), max: 75, c: f.hue[Math.floor(Math.random() * 3)], px: f.x, py: H, w: 1.8, ft: true });
+  function niagara(el) {
+    // 다리에서 쏟아지는 금빛 나이아가라 (후반부)
+    for (let k = 0; k < 10; k++) {
+      const x = rand(W * .08, W * .92);
+      parts.push({ x, y: HORIZON - 22, vx: rand(-.25, .25), vy: rand(.6, 1.4), life: rand(40, 70), max: 70, c: Math.random() < .7 ? '#ffd27a' : '#fff3cf', type: 'nia', w: 1.6, tr: [] });
     }
   }
-  sfxFountain(duration / 1000 + 1.2);
-  const t0 = performance.now(); let nextLaunch = 250;
+  function drawBridge(c) {
+    // 한강 다리 실루엣 + 가로등
+    c.globalCompositeOperation = 'source-over';
+    c.fillStyle = '#05060a';
+    c.fillRect(0, HORIZON - 26, W, 10);
+    for (let x = W * .06; x < W; x += W * .094) {
+      c.fillRect(x - 3, HORIZON - 26, 6, 26);
+      c.beginPath(); c.arc(x + W * .047, HORIZON - 16, W * .047, 0, Math.PI); c.strokeStyle = '#05060a'; c.lineWidth = 3; c.stroke();
+      c.fillStyle = '#ffd27a'; c.globalAlpha = .9; c.beginPath(); c.arc(x, HORIZON - 30, 1.6, 0, Math.PI * 2); c.fill(); c.globalAlpha = 1; c.fillStyle = '#05060a';
+    }
+    // 멀리 도시 불빛
+    for (let i = 0; i < 60; i++) { const x = (i * 97.3) % W; const y = HORIZON - 34 - ((i * 31) % 40); c.fillStyle = i % 3 ? 'rgba(255,220,150,.35)' : 'rgba(180,200,255,.35)'; c.fillRect(x, y, 2, 2); }
+  }
+  const t0 = performance.now(); let nextLaunch = 300; let finaleDone = false;
   (function frame(t) {
     const el = t - t0;
-    if (el < duration && el >= nextLaunch) { launch(); if (Math.random() < .5) launch(); nextLaunch = el + rand(420, 760); }
-    // 완전히 검은 화면 (처음 0.4초 동안 어두워지고, 끝나면 1.2초 동안 돌아옴)
-    const dim = Math.min(1, el / 400) * (el < duration ? 1 : Math.max(0, 1 - (el - duration) / 1200));
-    ctx.clearRect(0, 0, W, H);
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.fillStyle = `rgba(0, 0, 0, ${dim.toFixed(3)})`;
-    ctx.fillRect(0, 0, W, H);
-    ctx.globalCompositeOperation = 'lighter';
-    ctx.lineCap = 'round';
-    // 분수 불꽃 (아래쪽 줄)
-    if (el < duration - 400) fountains.forEach(f => { if (el >= f.start) emitFountain(f); });
-    // 올라가는 불꽃
-    for (let i = rockets.length - 1; i >= 0; i--) {
-      const r = rockets[i];
-      r.trail.push([r.x, r.y]); if (r.trail.length > 14) r.trail.shift();
-      r.x += r.vx + rand(-.3, .3); r.y += r.vy; r.vy += 0.16;
-      for (let k = 1; k < r.trail.length; k++) {
-        ctx.globalAlpha = (k / r.trail.length) * .8; ctx.strokeStyle = '#ffd98a'; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.moveTo(r.trail[k - 1][0], r.trail[k - 1][1]); ctx.lineTo(r.trail[k][0], r.trail[k][1]); ctx.stroke();
+    const endFade = el > duration ? Math.max(0, 1 - (el - duration) / 1500) : 1;
+    // 발사 스케줄: 평소 1~2발, 7~9.5초 피날레 연발
+    if (el < duration - 1200 && el >= nextLaunch) {
+      const finale = el > duration * .62 && el < duration * .9;
+      const k = finale ? 3 + Math.floor(Math.random() * 3) : 1 + (Math.random() < .55 ? 1 : 0);
+      for (let i = 0; i < k; i++) launch(finale ? { big: Math.random() < .7 } : {});
+      nextLaunch = el + (finale ? rand(160, 300) : rand(420, 800));
+    }
+    if (el > duration * .35 && el < duration - 1200) niagara(el);
+
+    // ---- 하늘 그리기 (오프스크린) ----
+    sctx.globalCompositeOperation = 'source-over';
+    sctx.clearRect(0, 0, W, HORIZON);
+    const g = sctx.createLinearGradient(0, 0, 0, HORIZON); g.addColorStop(0, '#02030a'); g.addColorStop(1, '#0b0e22');
+    sctx.fillStyle = g; sctx.fillRect(0, 0, W, HORIZON);
+    sctx.globalCompositeOperation = 'lighter'; sctx.lineCap = 'round';
+    // 포탄 궤적
+    for (let i = shells.length - 1; i >= 0; i--) {
+      const sh = shells[i];
+      sh.trail.push([sh.x, sh.y]); if (sh.trail.length > 12) sh.trail.shift();
+      sh.x += sh.vx; sh.y += sh.vy; sh.vy += 0.16;
+      for (let k = 1; k < sh.trail.length; k++) {
+        sctx.globalAlpha = (k / sh.trail.length) * .7; sctx.strokeStyle = '#ffe2a8'; sctx.lineWidth = 1.6;
+        sctx.beginPath(); sctx.moveTo(sh.trail[k - 1][0], sh.trail[k - 1][1]); sctx.lineTo(sh.trail[k][0], sh.trail[k][1]); sctx.stroke();
       }
-      ctx.globalAlpha = 1; ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(r.x, r.y, 2.4, 0, Math.PI * 2); ctx.fill();
-      if (r.vy >= -1.0 || r.y < H * .14) { explode(r); rockets.splice(i, 1); }
+      if (sh.vy >= -0.6) { burst(sh); shells.splice(i, 1); }
     }
     // 불씨
     for (let i = parts.length - 1; i >= 0; i--) {
       const p = parts[i];
-      p.px = p.x; p.py = p.y;
+      p.tr.push([p.x, p.y]); if (p.tr.length > (p.type === 'willow' || p.type === 'brocade' ? 9 : 5)) p.tr.shift();
       p.x += p.vx; p.y += p.vy;
-      p.vy += p.ft ? 0.22 : 0.04;
-      p.vx *= p.ft ? .99 : .962; p.vy *= p.ft ? .995 : .972;
+      if (p.type === 'willow' || p.type === 'brocade') { p.vy += 0.055; p.vx *= .975; p.vy *= .992; }
+      else if (p.type === 'nia') { p.vy += 0.06; p.vx *= .99; }
+      else { p.vy += 0.035; p.vx *= .962; p.vy *= .975; }
       p.life--;
-      if (p.life <= 0 || p.y > H + 10) { parts.splice(i, 1); continue; }
+      if (p.life <= 0 || p.y > HORIZON + 4) { parts.splice(i, 1); continue; }
       const a = p.life / p.max;
       if (p.flash) {
-        ctx.globalAlpha = a * .85; ctx.fillStyle = '#fff';
-        ctx.beginPath(); ctx.arc(p.x, p.y, (p.big ? 60 : 36) * (1 - a) + 8, 0, Math.PI * 2); ctx.fill();
+        sctx.globalAlpha = a * .9; sctx.fillStyle = '#fff';
+        sctx.beginPath(); sctx.arc(p.x, p.y, (p.big ? 70 : 42) * (1 - a) + 10, 0, Math.PI * 2); sctx.fill();
         continue;
       }
-      if (p.tw && a < .6 && Math.random() < .35) continue;      // 끝에서 반짝반짝
-      ctx.globalAlpha = Math.min(1, a * 1.3) * (p.ft ? .85 : 1);
-      ctx.strokeStyle = p.c; ctx.lineWidth = p.w;
-      ctx.beginPath(); ctx.moveTo(p.px, p.py); ctx.lineTo(p.x, p.y); ctx.stroke();
-      // 은은한 빛무리
-      ctx.globalAlpha *= .35; ctx.lineWidth = p.w * 3;
-      ctx.beginPath(); ctx.moveTo(p.px, p.py); ctx.lineTo(p.x, p.y); ctx.stroke();
+      const twinkle = (p.tw && a < .6) ? rand(.25, 1) : 1;        // 반짝반짝 잔불
+      // 꼬리 (여러 점을 잇는 부드러운 선)
+      sctx.strokeStyle = p.c; sctx.lineWidth = p.w;
+      sctx.globalAlpha = Math.min(1, a * 1.25) * twinkle;
+      sctx.beginPath(); sctx.moveTo(p.tr[0][0], p.tr[0][1]); for (let k = 1; k < p.tr.length; k++) sctx.lineTo(p.tr[k][0], p.tr[k][1]); sctx.lineTo(p.x, p.y); sctx.stroke();
+      // 빛무리
+      sctx.globalAlpha *= .22; sctx.lineWidth = p.w * 3.2;
+      sctx.beginPath(); sctx.moveTo(p.tr[0][0], p.tr[0][1]); sctx.lineTo(p.x, p.y); sctx.stroke();
     }
-    ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
-    if (el < duration + 1200 || rockets.length || parts.length) requestAnimationFrame(frame);
-    else { ctx.clearRect(0, 0, W, H); cv.hidden = true; }
+    sctx.globalAlpha = 1;
+    drawBridge(sctx);
+
+    // ---- 화면 합성: 하늘 + 강물 반영 ----
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha = 1;
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
+    ctx.drawImage(sky, 0, 0, sky.width, sky.height, 0, 0, W, HORIZON);
+    // 반영: 위아래 뒤집어 눌러 그리기 + 물결 어둡게
+    ctx.save();
+    ctx.translate(0, HORIZON); ctx.scale(1, -1);
+    ctx.globalAlpha = .38;
+    ctx.drawImage(sky, 0, 0, sky.width, sky.height, 0, -(H - HORIZON), W, (H - HORIZON) * 1.35);
+    ctx.restore();
+    const wg = ctx.createLinearGradient(0, HORIZON, 0, H); wg.addColorStop(0, 'rgba(0,0,0,.15)'); wg.addColorStop(1, 'rgba(0,0,0,.85)');
+    ctx.fillStyle = wg; ctx.fillRect(0, HORIZON, W, H - HORIZON);
+    for (let y = HORIZON + 6; y < H; y += 7) { ctx.fillStyle = 'rgba(0,0,0,.28)'; ctx.fillRect(0, y + Math.sin(el / 300 + y) * 1.5, W, 2); }
+    // 전체 페이드 (시작·끝)
+    const dimIn = Math.min(1, el / 500);
+    if (dimIn < 1 || endFade < 1) { ctx.globalAlpha = 1 - Math.min(dimIn, endFade); ctx.clearRect(0, 0, 0, 0); }
+    cv.style.opacity = String(Math.min(dimIn, endFade));
+
+    if (el < duration + 1500 || shells.length) requestAnimationFrame(frame);
+    else { ctx.clearRect(0, 0, W, H); cv.hidden = true; cv.style.opacity = ''; }
   })(t0);
 }
 
@@ -1665,6 +1765,7 @@ function resetForNewDay() {
   rolloverIfNeeded();
   buildHomeworkForToday();
   renderMissions();
+  loadWeather();
   modeOverride = null;
   autoStartedFor = '';
   renderTasks();
@@ -2025,6 +2126,11 @@ function renderMissions() {
     }
     list.append(row);
   });
+  if (tasks.some(t => t.carried && t.done)) {
+    const hint = document.createElement('div'); hint.className = 'sticker-note'; hint.style.whiteSpace = 'normal'; hint.style.textAlign = 'left'; hint.style.margin = '2px 2px 0';
+    hint.textContent = '🌙 "어젯밤 완료"는 어제 밤 준비에서 체크한 것 · 다시 눌러 해제할 수 있어요';
+    list.append(hint);
+  }
   $('crow').classList.toggle('happy', allDone());
 }
 function addMission() {
@@ -2158,7 +2264,7 @@ const WORLDS = [
   { name: '하늘 둥지', emoji: '🌌', bg: '#1a152c', grid: 'rgba(255,255,255,.06)' },
   { name: '왕관 까마귀', emoji: '👑', bg: '#1d1631', grid: 'rgba(255,255,255,.065)' }
 ];
-const GOAL_NIGHTS = 99;
+const GOAL_NIGHTS = 30;   // 1차 목표. 달성할 때마다 30개씩 다음 목표
 function worldIndex(n) { return Math.min(WORLDS.length - 1, Math.floor(n / 10)); }
 // 낮(6~18시)은 짙은 회색, 저녁·밤은 까마귀 검정
 function isNightTheme() { const h = new Date().getHours(); return h >= 18 || h < 6; }
@@ -2184,7 +2290,8 @@ function renderWorld() {
   const w = WORLDS[wi];
   applyTheme();
   const nights = stickers.length;
-  $('eyebrow').textContent = nights >= GOAL_NIGHTS ? `👑 반짝이 ${GOAL_NIGHTS}개 달성 · ${w.name}` : `${w.emoji} ${w.name} · 반짝이 ${nights} / ${GOAL_NIGHTS}`;
+  const goal = Math.ceil(Math.max(1, nights + 1) / GOAL_NIGHTS) * GOAL_NIGHTS;
+  $('eyebrow').textContent = `${w.emoji} ${w.name} · 반짝이 ${nights} / ${goal}`;
   $('worldName').textContent = `${w.emoji} ${w.name}`;
   const strip = $('worldStrip');
   strip.innerHTML = '';
@@ -2239,7 +2346,8 @@ function checkMorningCompletion() {
     writeStore(STICKERS_KEY, JSON.stringify(stickers));
     renderStickers(true);
     stickerMsg = `반짝이 ${emoji} 획득! (${stickers.length}개째)`;
-    if (stickers.length % 5 === 0) { fireworks(); stickerMsg += ' 🎆'; }
+    if (stickers.length % GOAL_NIGHTS === 0) { fireworks(16000); stickerMsg += ` 🏆 ${stickers.length}개 달성! 큰 선물 시간!`; }
+    else if (stickers.length % 5 === 0) { fireworks(); stickerMsg += ' 🎆'; }
     if (stickers.length % 10 === 0) {
       const w = WORLDS[worldIndex(stickers.length)];
       stickerMsg += ` 둥지 업그레이드 → ${w.emoji} ${w.name}! 게임 1시간 🎮`;
@@ -2428,7 +2536,7 @@ function renderTimer() {
   const schoolDay = isSchoolDay();
 
   // 출발 10분 전: 그날 한 번 자동 시작 (끝 시각 = 출발 시각)
-  if (dep && schoolDay && timer.status === 'idle' && autoStartedFor !== todayKey()) {
+  if (dep && schoolDay && timer.status === 'idle' && autoStartedFor !== todayKey() && !allDone()) {
     const untilDep = (dep.getTime() - now) / 1000;
     if (untilDep > 0 && untilDep <= dur) {
       ensureAudio();
@@ -2450,8 +2558,15 @@ function renderTimer() {
   // 출발 전 대기 화면: 출발까지 남은 시간을 크게
   const cd = $('countdown');
   const preDepart = st === 'idle' && dep && schoolDay && dep.getTime() - now > dur * 1000;
-  cd.classList.toggle('pre', !!preDepart);
+  // 미션을 다 끝낸 뒤: 출발까지 카운트다운 → 출발 시각이 지나면 "다녀와요"
+  const doneWait = allDone() && dep && schoolDay && (st === 'success' || st === 'idle' || st === 'done') && !preDepart;
+  const afterDepart = doneWait && dep.getTime() - now <= 0;
+  cd.classList.toggle('pre', !!preDepart || !!doneWait);
   if (preDepart) {
+    cd.textContent = fmtLong((dep.getTime() - now) / 1000);
+  } else if (afterDepart) {
+    cd.textContent = '다녀와요! 🪶';
+  } else if (doneWait) {
     cd.textContent = fmtLong((dep.getTime() - now) / 1000);
   } else {
     cd.textContent = fmt(rem);
@@ -2470,8 +2585,11 @@ function renderTimer() {
   renderFilm(rem, dur);
 
   let stage = 'idle', label = '준비 완료!', note = '출발!을 누르면 모래가 떨어져요';
-  if (preDepart) { label = '출발 대기 🚪'; note = '출발까지 남은 시간이에요'; }
-  if (st === 'running') {
+  if (preDepart) { label = allDone() ? '미션 끝! 여유 있어요 🪶' : '출발 대기 🚪'; note = '출발까지 남은 시간이에요'; if (allDone()) stage = 'success'; }
+  if (afterDepart) { stage = 'success'; label = '오늘 아침 미션 완료 🪶'; note = '학교 잘 다녀와요!'; }
+  else if (doneWait) { stage = 'success'; label = '미션 끝! 여유 있어요'; note = '출발까지 남은 시간이에요'; }
+  if (doneWait) { /* 위에서 정함 */ }
+  else if (st === 'running') {
     if (frac > .5) { stage = 'calm'; label = '순조로워요 🪶'; note = '칸 하나에 1분이에요'; }
     else if (frac > .2) { stage = 'hurry'; label = '조금 서둘러요 ⚡'; note = '남은 칸을 확인해요'; }
     else { stage = 'urgent'; label = '마지막 스퍼트! 💨'; note = '거의 다 왔어요'; }
@@ -2484,7 +2602,7 @@ function renderTimer() {
 
   const start = $('startBtn');
   start.textContent = st === 'paused' ? '▶ 계속' : (st === 'done' || st === 'success') ? '🪶 한 번 더' : '🪶 출발!';
-  start.hidden = st === 'running';
+  start.hidden = st === 'running' || afterDepart;
   $('pauseBtn').hidden = st !== 'running';
   $('resetBtn').hidden = st === 'idle';
   $('duration').hidden = !(st === 'idle' || st === 'done' || st === 'success');
