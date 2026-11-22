@@ -877,6 +877,28 @@ html.theme-day .tasks-card.evening { background: #e9ebff; }
 .buddy.shirt-blue .body { background: var(--blue); }
 .buddy.shirt-green .body { background: var(--green); }
 
+/* 낮 카드: 일정 요약 + 숙제 */
+.day-summary { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.day-summary .pill {
+  font-size: clamp(11px, 1.15vw, 13px); font-weight: 800; white-space: nowrap;
+  background: var(--panel); border: 2px solid var(--ink); border-radius: 8px; padding: 3px 9px;
+  overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+}
+.day-summary .pill.next { background: var(--yellow); }
+.day-summary .pill.soft { background: transparent; border-style: dashed; color: var(--muted); }
+.hw-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  font-family: var(--font-display); font-size: clamp(14px, 1.45vw, 18px);
+  margin: 2px 0 6px;
+}
+.hw-stars { display: inline-flex; gap: 3px; }
+.hw-stars i { font-style: normal; font-size: 14px; opacity: .25; }
+.hw-stars i.on { opacity: 1; }
+.week-toggle { padding: 4px 10px; border-width: 2.5px; font-size: clamp(11px, 1.1vw, 13px); box-shadow: 0 3px 0 var(--ink); margin-left: 8px; }
+.week-toggle:active { transform: translateY(3px); box-shadow: none; }
+.week-card.hw-view .day { background: #fff8e6; }
+.week-card.hw-view .day.today { background: #ffd98a; }
+
 /* ---------- 잠금 ---------- */
 .locked .del, .locked .add-area, .locked .duration { display: none; }
 
@@ -1066,6 +1088,7 @@ html.theme-day .tasks-card.evening { background: #e9ebff; }
       <div class="upcoming" id="upcoming"></div>
       <span class="weekdots" id="weekdots" title="이번 주 배지"></span>
       <span class="tiny" id="weekHint" style="margin-left:8px">칸을 눌러 적어 주세요</span>
+      <button class="week-toggle" id="weekToggle" type="button">📚 숙제 틀</button>
     </div>
     <div class="week" id="week"></div>
   </section>
@@ -1105,7 +1128,7 @@ function applyLock() {
     el.setAttribute('contenteditable', locked ? 'false' : 'plaintext-only');
   });
   $('lockButton').textContent = locked ? '🔒 잠금' : '🔓 편집 중';
-  $('weekHint').textContent = locked ? '🔒 잠금' : '칸을 눌러 적어 주세요';
+  renderWeek();
   renderTasks();
 }
 $('lockButton').addEventListener('click', () => {
@@ -1218,13 +1241,25 @@ function renderWeekDots() {
   }
 }
 
+let weekView = 'schedule';
+$('weekToggle').addEventListener('click', () => {
+  weekView = weekView === 'schedule' ? 'homework' : 'schedule';
+  renderWeek();
+});
+const HW_PLACEHOLDER = '예: 구몬 2장';
 function renderWeek() {
   renderUpcoming();
   renderWeekDots();
   const wrap = $('week');
   wrap.innerHTML = '';
   const ti = todayIndex();
-  week.forEach((text, i) => {
+  const hwView = weekView === 'homework';
+  document.querySelector('.week-card').classList.toggle('hw-view', hwView);
+  document.querySelector('.week-card h2').textContent = hwView ? '📚 요일별 숙제 틀' : '🗺️ 이번 주 탐험 지도';
+  $('weekToggle').textContent = hwView ? '🗺️ 학원 보기' : '📚 숙제 틀';
+  $('weekHint').textContent = locked ? '🔒 잠금' : (hwView ? '매주 반복되는 숙제 · 한 줄에 하나씩' : '칸을 눌러 적어 주세요');
+  const source = hwView ? hwTpl : week;
+  source.forEach((text, i) => {
     const day = document.createElement('div');
     day.className = 'day' + (i === ti ? ' today' : '') + (i >= 5 ? ' weekend' : '');
 
@@ -1237,15 +1272,22 @@ function renderWeek() {
     body.className = 'day-body';
     body.dataset.editable = '1';
     body.dataset.i = i;
-    body.dataset.placeholder = WEEK_PLACEHOLDER[i];
+    body.dataset.placeholder = hwView ? HW_PLACEHOLDER : WEEK_PLACEHOLDER[i];
     body.textContent = text;
     body.setAttribute('contenteditable', locked ? 'false' : 'plaintext-only');
     body.addEventListener('input', () => {
       if (body.textContent.trim() === '') body.innerHTML = '';
-      week[i] = body.innerText.replace(/\n{2,}/g, '\n').trim();
-      writeStore(WEEK_KEY, JSON.stringify(week));
-      if (i === ti) updateGreeting();
-      renderUpcoming();
+      const val = body.innerText.replace(/\n{2,}/g, '\n').trim();
+      if (hwView) {
+        hwTpl[i] = val;
+        writeStore(HW_TPL_KEY, JSON.stringify(hwTpl));
+        if (i === ti) { syncHomeworkTemplate(); if (currentMode() === 'day') renderTasks(); }
+      } else {
+        week[i] = val;
+        writeStore(WEEK_KEY, JSON.stringify(week));
+        if (i === ti) updateGreeting();
+        renderUpcoming();
+      }
     });
     body.addEventListener('paste', e => {
       e.preventDefault();
@@ -1346,6 +1388,7 @@ let lastAutoMode = null;
 
 function resetForNewDay() {
   rolloverIfNeeded();
+  buildHomeworkForToday();
   modeOverride = null;
   autoStartedFor = '';
   renderTasks();
@@ -1488,13 +1531,64 @@ function resetEveningIfNeeded() {
 }
 rolloverIfNeeded();
 
+// ---------- 숙제 (요일별 틀 + 오늘 추가 + 어제 이월) ----------
+const HW_TPL_KEY = 'scene_hw_tpl_v1';
+const HW_KEY = 'scene_hw_v1';
+const HW_STARS_KEY = 'scene_hw_stars_v1';
+const DEFAULT_HW_TPL = [
+  '📚 구몬 2장',                       // 월
+  '📚 구몬 2장\n📖 문학 2챕터',        // 화
+  '📚 구몬 2장\n✏️ 빠작 어휘 2챕터',   // 수
+  '📚 구몬 2장\n📖 비문학 2챕터',      // 목
+  '📚 구몬 2장\n✏️ 빠작 어휘 2챕터',   // 금
+  '📚 구몬 2장',                       // 토
+  '📚 구몬 2장'                        // 일
+];
+let hwTpl = readJSON(HW_TPL_KEY, null);
+if (!Array.isArray(hwTpl) || hwTpl.length !== 7) hwTpl = DEFAULT_HW_TPL.slice();
+let hw = readJSON(HW_KEY, null);
+if (!hw || !Array.isArray(hw.items)) hw = { date: '', items: [] };
+let hwStars = readJSON(HW_STARS_KEY, []);
+if (!Array.isArray(hwStars)) hwStars = [];
+function saveHw() { writeStore(HW_KEY, JSON.stringify(hw)); }
+function tplLines(i) { return (hwTpl[i] || '').split('\n').map(l => l.trim()).filter(Boolean); }
+
+// 오늘 숙제 목록 만들기: 어제 못 한 것(이월) + 오늘 요일 틀 + 오늘 추가한 것
+function buildHomeworkForToday() {
+  const today = todayKey();
+  if (hw.date === today) { syncHomeworkTemplate(); return; }
+  const carried = hw.date === yesterdayKey()
+    ? hw.items.filter(t => !t.done).map(t => ({ text: t.text, done: false, src: 'carry' }))
+    : [];
+  const tpl = tplLines(todayIndex()).map(text => ({ text, done: false, src: 'tpl' }));
+  hw = { date: today, items: [...carried, ...tpl] };
+  saveHw();
+}
+// 틀을 고쳤을 때 오늘 목록의 틀 항목만 다시 맞춤(체크 상태는 유지)
+function syncHomeworkTemplate() {
+  const want = tplLines(todayIndex());
+  const keep = hw.items.filter(t => t.src !== 'tpl');
+  const prev = new Map(hw.items.filter(t => t.src === 'tpl').map(t => [t.text, t.done]));
+  hw.items = [...keep.filter(t => t.src === 'carry'), ...want.map(text => ({ text, done: prev.get(text) || false, src: 'tpl' })), ...keep.filter(t => t.src === 'today')];
+  saveHw();
+}
+function hwAllDone() { return hw.items.length > 0 && hw.items.every(t => t.done); }
+function weekStarCount() {
+  const now = new Date();
+  const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - todayIndex());
+  let n = 0;
+  for (let i = 0; i < 7; i++) { const d = new Date(monday); d.setDate(monday.getDate() + i); if (hwStars.includes(dateKey(d))) n++; }
+  return n;
+}
+buildHomeworkForToday();
+
 // 화면 모드: 시간대로 자동, 버튼으로 잠시 바꿔 볼 수 있음
 let modeOverride = null; // 'morning' | 'evening' | null
 const DAY_START_HOUR = 9;
 function autoMode() {
   const h = new Date().getHours();
   if (h >= EVENING_START_HOUR) return 'evening';
-  if (h >= DAY_START_HOUR && isSchoolDay() && timer.status !== 'running') return 'day';
+  if (h >= DAY_START_HOUR && timer.status !== 'running') return 'day';
   return 'morning';
 }
 function currentMode() { return modeOverride || autoMode(); }
@@ -1562,6 +1656,71 @@ function renderAgenda() {
   prog.classList.toggle('complete', remaining === 0);
 }
 
+// 낮 카드: 오늘 학원 요약 한 줄 + 숙제 체크리스트
+function renderDayCard() {
+  buildHomeworkForToday();
+  const list = $('taskList');
+  list.innerHTML = '';
+  const now = new Date(); const nowMin = now.getHours() * 60 + now.getMinutes();
+  const lines = (week[todayIndex()] || '').split('\n').map(l => l.trim()).filter(Boolean);
+
+  // 학원 요약
+  const sum = document.createElement('div'); sum.className = 'day-summary';
+  const upcoming = lines.map(l => ({ l, t: parseLineTime(l) })).filter(x => x.t === null || x.t >= nowMin);
+  const past = lines.length - upcoming.length;
+  if (!lines.length) { const p = document.createElement('span'); p.className = 'pill soft'; p.textContent = '오늘은 학원 없는 날 🎈'; sum.append(p); }
+  upcoming.slice(0, 1).forEach(x => {
+    const p = document.createElement('span'); p.className = 'pill' + (x.t !== null ? ' next' : '');
+    const tt = x.t === null ? '' : `${String(Math.floor(x.t / 60)).padStart(2, '0')}:${String(x.t % 60).padStart(2, '0')} `;
+    p.textContent = '다음 · ' + tt + (x.t === null ? x.l : x.l.replace(/^\s*\d{1,2}\s*(?:시|:)\s*(?:\d{1,2}\s*)?분?\s*/, ''));
+    sum.append(p);
+  });
+  if (upcoming.length > 1) { const p = document.createElement('span'); p.className = 'pill soft'; p.textContent = `그다음 ${upcoming.length - 1}개`; sum.append(p); }
+  if (lines.length && !upcoming.length) { const p = document.createElement('span'); p.className = 'pill soft'; p.textContent = '오늘 학원 모두 끝 ✓'; sum.append(p); }
+  else if (past) { const p = document.createElement('span'); p.className = 'pill soft'; p.textContent = `끝난 일정 ${past}`; sum.append(p); }
+  list.append(sum);
+
+  // 숙제 머리글 + 주간 별
+  const head = document.createElement('div'); head.className = 'hw-head';
+  const title = document.createElement('span'); title.textContent = `${DAYS[todayIndex()]}요일 숙제`;
+  const stars = document.createElement('span'); stars.className = 'hw-stars'; stars.title = '이번 주 숙제 완료한 날';
+  const n = weekStarCount();
+  for (let i = 0; i < 7; i++) { const st = document.createElement('i'); st.textContent = '⭐'; if (i < n) st.classList.add('on'); stars.append(st); }
+  head.append(title, stars);
+  list.append(head);
+
+  if (!hw.items.length) { const e = document.createElement('div'); e.className = 'agenda-empty'; e.textContent = '오늘은 숙제가 없어요 🎉 아래에서 추가할 수 있어요'; list.append(e); }
+  hw.items.forEach((item, index) => {
+    const row = document.createElement('div');
+    row.className = 'task' + (item.done ? ' done' : '');
+    const label = document.createElement('label');
+    const cb = document.createElement('input');
+    cb.type = 'checkbox'; cb.id = 'hw-' + index; cb.checked = item.done;
+    cb.addEventListener('change', () => {
+      hw.items[index].done = cb.checked;
+      saveHw();
+      if (cb.checked) playNotes([[1046, .07], [1318, .09]]);
+      renderTasks();
+      checkCompletion();
+    });
+    const span = document.createElement('span'); span.textContent = item.text;
+    if (item.src === 'carry') { const tag = document.createElement('span'); tag.className = 'carry'; tag.textContent = '어제'; span.append(tag); }
+    label.append(cb, span);
+    row.append(label);
+    if (!locked || item.src === 'today') {
+      const del = document.createElement('button'); del.type = 'button'; del.className = 'del'; del.textContent = '✕'; del.setAttribute('aria-label', '삭제');
+      del.addEventListener('click', () => { hw.items.splice(index, 1); saveHw(); renderTasks(); });
+      row.append(del);
+    }
+    list.append(row);
+  });
+
+  const done = hw.items.filter(t => t.done).length;
+  const prog = $('progress');
+  prog.textContent = hw.items.length ? (hwAllDone() ? `${done} / ${hw.items.length} 완료!` : `${done} / ${hw.items.length}`) : '숙제 없음';
+  prog.classList.toggle('complete', hwAllDone());
+}
+
 let brushEnd = 0, brushTimerId = null;
 function startBrushTimer() {
   brushEnd = Date.now() + 2 * 60 * 1000;
@@ -1578,12 +1737,13 @@ function renderTasks() {
   const mode = currentMode();
   const card = document.querySelector('.tasks-card');
   if (mode === 'day') {
-    renderAgenda();
+    renderDayCard();
     card.classList.remove('evening');
-    $('tasksTitle').textContent = '🌲 오늘 남은 탐험';
+    $('tasksTitle').textContent = '📚 오늘의 숙제';
     $('modeBtn').textContent = '☀️ 아침';
-    $('addArea').hidden = true;
-    document.querySelectorAll('.crew .buddy').forEach(b => b.classList.toggle('happy', allDone()));
+    $('addArea').hidden = false;
+    $('newTask').placeholder = '오늘 숙제 추가 ✏️';
+    document.querySelectorAll('.crew .buddy').forEach(b => b.classList.toggle('happy', hwAllDone()));
     return;
   }
   $('addArea').hidden = false;
@@ -1654,10 +1814,11 @@ function addTask() {
   const input = $('newTask');
   const value = input.value.trim();
   if (!value) return;
-  currentList().push({ text: value, done: false });
+  if (currentMode() === 'day') hw.items.push({ text: value, done: false, src: 'today' });
+  else currentList().push({ text: value, done: false });
   input.value = '';
   input.blur();
-  saveCurrent();
+  if (currentMode() === 'day') saveHw(); else saveCurrent();
   renderTasks();
 }
 $('addButton').addEventListener('click', addTask);
@@ -1750,7 +1911,19 @@ function renderStickers(newOne = false) {
 }
 
 function checkCompletion() {
-  if (currentMode() === 'day') return;
+  if (currentMode() === 'day') {
+    if (!hwAllDone()) return;
+    const today = todayKey();
+    if (!hwStars.includes(today)) {
+      hwStars.push(today);
+      writeStore(HW_STARS_KEY, JSON.stringify(hwStars));
+      playNotes([[523, .1], [659, .1], [784, .1], [1046, .3]]);
+      const n = weekStarCount();
+      showToast('숙제 완료! ⭐', `이번 주 별 ${n}개째${n >= 5 ? ' · 주말 보상 받을 자격 획득 🎁' : ''}`, 3200);
+      renderTasks();
+    }
+    return;
+  }
   if (currentMode() === 'evening') {
     if (!eveningAllDone()) return;
     const carries = evening.tasks.filter(t => t.done && t.carry).length;
